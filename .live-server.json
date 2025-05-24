@@ -1,0 +1,10 @@
+{
+    "root": ".",
+    "port": 5500,
+    "open": true,
+    "file": "index.html",
+    "wait": 1000,
+    "mount": [],
+    "logLevel": 2,
+    "middleware": []
+} 
