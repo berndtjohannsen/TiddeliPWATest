@@ -59,23 +59,35 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isOpen) {
                 dropdownMenu.classList.add('hidden');
                 dropdownOverlay.classList.add('hidden');
+                // Restore pointer events
+                dropdownOverlay.style.pointerEvents = '';
+                dropdownMenu.style.pointerEvents = '';
             } else {
                 dropdownMenu.classList.remove('hidden');
                 dropdownOverlay.classList.remove('hidden');
                 // Always focus the first option in the dropdown
                 const firstOption = dropdownMenu.querySelector('a');
                 if (firstOption) firstOption.focus();
+                // Make overlay non-interactive, menu interactive
+                dropdownOverlay.style.pointerEvents = 'none';
+                dropdownMenu.style.pointerEvents = 'auto';
             }
         });
         dropdownOverlay.addEventListener('click', () => {
             dropdownMenu.classList.add('hidden');
             dropdownOverlay.classList.add('hidden');
+            // Restore pointer events
+            dropdownOverlay.style.pointerEvents = '';
+            dropdownMenu.style.pointerEvents = '';
         });
         // Hide dropdown if clicking anywhere else
         document.addEventListener('click', (e) => {
             if (!hamburgerMenuBtn.contains(e.target)) {
                 dropdownMenu.classList.add('hidden');
                 dropdownOverlay.classList.add('hidden');
+                // Restore pointer events
+                dropdownOverlay.style.pointerEvents = '';
+                dropdownMenu.style.pointerEvents = '';
             }
         });
     }
@@ -85,6 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdownMenu.querySelectorAll('a').forEach(option => {
             option.addEventListener('click', (e) => {
                 e.preventDefault();
+                // Hide the drawer immediately
+                dropdownMenu.classList.add('hidden');
+                dropdownOverlay.classList.add('hidden');
                 const text = option.textContent.trim();
                 if (text === 'Test GPS') {
                     // Hide top bar
@@ -112,6 +127,48 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
                     }, 100);
+                } else if (text === 'Data Entry') {
+                    // Restore top bar
+                    if (topBar) topBar.style.display = '';
+                    // Restore padding and overflow to main content
+                    mainContent.classList.add('px-4', 'py-8', 'overflow-auto');
+                    mainContent.classList.remove('overflow-hidden');
+                    // Show data entry form
+                    mainContent.innerHTML = `
+                        <form id="data-entry-form" class="space-y-6">
+                          <div>
+                            <label class="block text-sm font-medium mb-1">Name</label>
+                            <input type="text" name="name" class="block w-full border rounded px-3 py-2" placeholder="Enter your name" required>
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium mb-1">Age</label>
+                            <input type="number" name="age" class="block w-full border rounded px-3 py-2" placeholder="Enter your age" min="0" max="120">
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium mb-1">Email</label>
+                            <input type="email" name="email" class="block w-full border rounded px-3 py-2" placeholder="Enter your email">
+                          </div>
+                          <div class="flex items-center">
+                            <input type="checkbox" name="subscribe" id="subscribe" class="mr-2">
+                            <label for="subscribe" class="text-sm">Subscribe to newsletter</label>
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium mb-1">Favorite Color</label>
+                            <select name="color" class="block w-full border rounded px-3 py-2">
+                              <option value="">Select a color</option>
+                              <option value="red">Red</option>
+                              <option value="green">Green</option>
+                              <option value="blue">Blue</option>
+                              <option value="yellow">Yellow</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium mb-1">Comments</label>
+                            <textarea name="comments" class="block w-full border rounded px-3 py-2" rows="3" placeholder="Your comments..."></textarea>
+                          </div>
+                          <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Submit</button>
+                        </form>
+                    `;
                 } else {
                     // Restore top bar for other options
                     if (topBar) topBar.style.display = '';
@@ -120,9 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     mainContent.classList.remove('overflow-hidden');
                     // You can add logic for other drawer options here
                 }
-                // Hide the drawer after selection
-                dropdownMenu.classList.add('hidden');
-                dropdownOverlay.classList.add('hidden');
             });
         });
     }
