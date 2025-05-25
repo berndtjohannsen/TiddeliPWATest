@@ -59,6 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 dropdownMenu.classList.remove('hidden');
                 dropdownOverlay.classList.remove('hidden');
+                // Always focus the first option in the dropdown
+                const firstOption = dropdownMenu.querySelector('a');
+                if (firstOption) firstOption.focus();
             }
         });
         dropdownOverlay.addEventListener('click', () => {
