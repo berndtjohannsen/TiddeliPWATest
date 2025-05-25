@@ -1,6 +1,6 @@
 {
     "name": "Tiddeli PWA",
-    "short_name": "Tiddeli",
+    "short_name": "TiddeliPWA",
     "description": "A Progressive Web App that mimics native app behavior",
     "start_url": "./",
     "display": "fullscreen",
