@@ -183,6 +183,52 @@ document.addEventListener('DOMContentLoaded', () => {
                             form.reset();
                         });
                     }
+                } else if (text === 'Camera') {
+                    // Restore top bar
+                    if (topBar) topBar.style.display = '';
+                    // Restore padding and overflow to main content
+                    mainContent.classList.add('px-4', 'py-8', 'overflow-auto');
+                    mainContent.classList.remove('overflow-hidden');
+                    // Show camera UI
+                    mainContent.innerHTML = `
+                        <div class="space-y-4">
+                          <video id="camera-video" autoplay playsinline class="w-full rounded border"></video>
+                          <button id="capture-btn" class="bg-indigo-600 text-white px-4 py-2 rounded">Capture Photo</button>
+                          <div id="photo-preview" class="mt-4"></div>
+                        </div>
+                    `;
+                    // Camera logic
+                    const video = document.getElementById('camera-video');
+                    const captureBtn = document.getElementById('capture-btn');
+                    const photoPreview = document.getElementById('photo-preview');
+                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                        navigator.mediaDevices.getUserMedia({ video: true })
+                            .then(stream => {
+                                video.srcObject = stream;
+                                video.onloadedmetadata = () => video.play();
+                                captureBtn.onclick = () => {
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = video.videoWidth;
+                                    canvas.height = video.videoHeight;
+                                    const ctx = canvas.getContext('2d');
+                                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                                    const img = document.createElement('img');
+                                    img.src = canvas.toDataURL('image/png');
+                                    img.className = 'w-full rounded border mt-2';
+                                    photoPreview.innerHTML = '';
+                                    photoPreview.appendChild(img);
+                                };
+                            })
+                            .catch(err => {
+                                video.style.display = 'none';
+                                captureBtn.style.display = 'none';
+                                photoPreview.innerHTML = '<div class="text-red-500">Camera access denied or not available.</div>';
+                            });
+                    } else {
+                        video.style.display = 'none';
+                        captureBtn.style.display = 'none';
+                        photoPreview.innerHTML = '<div class="text-red-500">Camera not supported in this browser.</div>';
+                    }
                 } else {
                     // Restore top bar for other options
                     if (topBar) topBar.style.display = '';
@@ -197,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Store the initial main content HTML for restoration
     const initialMainContent = `<div class="text-base text-gray-700">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque.
     </div>`;
 
     // Restore initial view when Home is clicked
