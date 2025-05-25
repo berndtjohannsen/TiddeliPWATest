@@ -48,7 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const hamburgerMenuBtn = document.getElementById('hamburger-menu');
     const dropdownMenu = document.getElementById('dropdown-menu');
     const dropdownOverlay = document.getElementById('dropdown-overlay');
+    const topBar = document.querySelector('nav.top-bar');
+    const mainContent = document.querySelector('main');
 
+    // Hamburger menu open/close logic (restored)
     if (hamburgerMenuBtn && dropdownMenu && dropdownOverlay) {
         hamburgerMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -68,12 +71,78 @@ document.addEventListener('DOMContentLoaded', () => {
             dropdownMenu.classList.add('hidden');
             dropdownOverlay.classList.add('hidden');
         });
-        // Optional: Hide dropdown if clicking anywhere else
+        // Hide dropdown if clicking anywhere else
         document.addEventListener('click', (e) => {
             if (!hamburgerMenuBtn.contains(e.target)) {
                 dropdownMenu.classList.add('hidden');
                 dropdownOverlay.classList.add('hidden');
             }
+        });
+    }
+
+    // Add event listeners to drawer options
+    if (dropdownMenu) {
+        dropdownMenu.querySelectorAll('a').forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.preventDefault();
+                const text = option.textContent.trim();
+                if (text === 'Test GPS') {
+                    // Hide top bar
+                    if (topBar) topBar.style.display = 'none';
+                    // Remove padding and set overflow-hidden from main content
+                    mainContent.classList.remove('px-4', 'py-8', 'overflow-auto');
+                    mainContent.classList.add('overflow-hidden');
+                    // Show map in main content
+                    mainContent.innerHTML = '<div id="map" style="width:100%;height:calc(100vh - 4rem);border-radius:1rem;"></div>';
+                    setTimeout(() => {
+                        if (window.L && document.getElementById('map')) {
+                            const map = L.map('map').setView([59.3293, 18.0686], 13); // Stockholm as default
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                maxZoom: 19,
+                                attribution: '© OpenStreetMap'
+                            }).addTo(map);
+                            // Optionally, add a marker for current location if available
+                            if (navigator.geolocation) {
+                                navigator.geolocation.getCurrentPosition(pos => {
+                                    const lat = pos.coords.latitude;
+                                    const lng = pos.coords.longitude;
+                                    L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
+                                    map.setView([lat, lng], 15);
+                                });
+                            }
+                        }
+                    }, 100);
+                } else {
+                    // Restore top bar for other options
+                    if (topBar) topBar.style.display = '';
+                    // Restore padding and overflow to main content
+                    mainContent.classList.add('px-4', 'py-8', 'overflow-auto');
+                    mainContent.classList.remove('overflow-hidden');
+                    // You can add logic for other drawer options here
+                }
+                // Hide the drawer after selection
+                dropdownMenu.classList.add('hidden');
+                dropdownOverlay.classList.add('hidden');
+            });
+        });
+    }
+
+    // Store the initial main content HTML for restoration
+    const initialMainContent = `<div class="text-base text-gray-700">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque.
+    </div>`;
+
+    // Restore initial view when Home is clicked
+    const homeBtn = document.querySelectorAll('.bottom-0 a')[0];
+    if (homeBtn) {
+        homeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Restore top bar
+            if (topBar) topBar.style.display = '';
+            // Restore main content and padding
+            mainContent.innerHTML = initialMainContent;
+            mainContent.classList.add('px-4', 'py-8', 'overflow-auto');
+            mainContent.classList.remove('overflow-hidden');
         });
     }
 });
