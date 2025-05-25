@@ -47,47 +47,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Dropdown menu logic
     const hamburgerMenuBtn = document.getElementById('hamburger-menu');
     const dropdownMenu = document.getElementById('dropdown-menu');
-    const dropdownOverlay = document.getElementById('dropdown-overlay');
     const topBar = document.querySelector('nav.top-bar');
     const mainContent = document.querySelector('main');
 
-    // Hamburger menu open/close logic (restored)
-    if (hamburgerMenuBtn && dropdownMenu && dropdownOverlay) {
+    // Hamburger menu open/close logic (overlay removed)
+    if (hamburgerMenuBtn && dropdownMenu) {
         hamburgerMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const isOpen = !dropdownMenu.classList.contains('hidden');
             if (isOpen) {
                 dropdownMenu.classList.add('hidden');
-                dropdownOverlay.classList.add('hidden');
-                // Restore pointer events
-                dropdownOverlay.style.pointerEvents = '';
-                dropdownMenu.style.pointerEvents = '';
             } else {
                 dropdownMenu.classList.remove('hidden');
-                dropdownOverlay.classList.remove('hidden');
                 // Always focus the first option in the dropdown
                 const firstOption = dropdownMenu.querySelector('a');
                 if (firstOption) firstOption.focus();
-                // Make overlay non-interactive, menu interactive
-                dropdownOverlay.style.pointerEvents = 'none';
-                dropdownMenu.style.pointerEvents = 'auto';
             }
-        });
-        dropdownOverlay.addEventListener('click', () => {
-            dropdownMenu.classList.add('hidden');
-            dropdownOverlay.classList.add('hidden');
-            // Restore pointer events
-            dropdownOverlay.style.pointerEvents = '';
-            dropdownMenu.style.pointerEvents = '';
         });
         // Hide dropdown if clicking anywhere else
         document.addEventListener('click', (e) => {
-            if (!hamburgerMenuBtn.contains(e.target)) {
+            if (!hamburgerMenuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
                 dropdownMenu.classList.add('hidden');
-                dropdownOverlay.classList.add('hidden');
-                // Restore pointer events
-                dropdownOverlay.style.pointerEvents = '';
-                dropdownMenu.style.pointerEvents = '';
             }
         });
     }
@@ -97,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdownMenu.querySelectorAll('a').forEach(option => {
             option.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 // Hide the drawer immediately
                 dropdownMenu.classList.add('hidden');
-                dropdownOverlay.classList.add('hidden');
                 const text = option.textContent.trim();
                 if (text === 'Test GPS') {
                     // Hide top bar
