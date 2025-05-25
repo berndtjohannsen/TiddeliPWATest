@@ -24,11 +24,17 @@
         <nav class="bg-white shadow-md flex-shrink-0 h-16 flex items-center">
             <div class="px-4 w-full flex items-center h-full justify-between">
                 <!-- Hamburger Menu -->
-                <button aria-label="Menu">
+                <button id="hamburger-menu" aria-label="Menu" class="relative">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
                   </svg>
+                  <!-- Dropdown Menu (hidden by default) -->
+                  <div id="dropdown-menu" class="absolute left-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-40 hidden">
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Test GPS</a>
+                  </div>
                 </button>
+                <!-- Dropdown Overlay (hidden by default) -->
+                <div id="dropdown-overlay" class="fixed inset-0 z-30 hidden"></div>
                 <!-- App Name (centered) -->
                 <div class="text-2xl font-semibold flex-1 text-center -ml-6">TiddeliPWA</div>
                 <!-- Version Number (right) -->

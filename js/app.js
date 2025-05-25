@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateActiveState(item);
             
             // Get the page name from the text content
-            const pageName = item.querySelector('span').textContent.toLowerCase();
+            const span = item.querySelector('span');
+            const pageName = span ? span.textContent.toLowerCase() : item.textContent.toLowerCase();
             currentPage = pageName;
             
             // TODO: Add page content switching logic
@@ -42,6 +43,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // TODO: Add mobile feature handlers
     // TODO: Add UI interactions
+
+    // Dropdown menu logic
+    const hamburgerMenuBtn = document.getElementById('hamburger-menu');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const dropdownOverlay = document.getElementById('dropdown-overlay');
+
+    if (hamburgerMenuBtn && dropdownMenu && dropdownOverlay) {
+        hamburgerMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = !dropdownMenu.classList.contains('hidden');
+            if (isOpen) {
+                dropdownMenu.classList.add('hidden');
+                dropdownOverlay.classList.add('hidden');
+            } else {
+                dropdownMenu.classList.remove('hidden');
+                dropdownOverlay.classList.remove('hidden');
+            }
+        });
+        dropdownOverlay.addEventListener('click', () => {
+            dropdownMenu.classList.add('hidden');
+            dropdownOverlay.classList.add('hidden');
+        });
+        // Optional: Hide dropdown if clicking anywhere else
+        document.addEventListener('click', (e) => {
+            if (!hamburgerMenuBtn.contains(e.target)) {
+                dropdownMenu.classList.add('hidden');
+                dropdownOverlay.classList.add('hidden');
+            }
+        });
+    }
 });
 
 function checkAppVersion() {
