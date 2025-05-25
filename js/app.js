@@ -149,6 +149,40 @@ document.addEventListener('DOMContentLoaded', () => {
                           <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Submit</button>
                         </form>
                     `;
+                    // Restore form data from localStorage
+                    const saved = JSON.parse(localStorage.getItem('dataEntryForm') || '{}');
+                    const form = document.getElementById('data-entry-form');
+                    if (form) {
+                        Object.keys(saved).forEach(key => {
+                            const field = form.elements[key];
+                            if (field) {
+                                if (field.type === 'checkbox') {
+                                    field.checked = !!saved[key];
+                                } else {
+                                    field.value = saved[key];
+                                }
+                            }
+                        });
+                        // Auto-save on input/change
+                        form.addEventListener('input', () => {
+                            const data = {
+                                name: form.elements['name'].value,
+                                age: form.elements['age'].value,
+                                email: form.elements['email'].value,
+                                subscribe: form.elements['subscribe'].checked,
+                                color: form.elements['color'].value,
+                                comments: form.elements['comments'].value
+                            };
+                            localStorage.setItem('dataEntryForm', JSON.stringify(data));
+                        });
+                        // Clear saved data on submit
+                        form.addEventListener('submit', (e) => {
+                            e.preventDefault();
+                            localStorage.removeItem('dataEntryForm');
+                            alert('Form submitted! (Data cleared from storage)');
+                            form.reset();
+                        });
+                    }
                 } else {
                     // Restore top bar for other options
                     if (topBar) topBar.style.display = '';
@@ -163,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Store the initial main content HTML for restoration
     const initialMainContent = `<div class="text-base text-gray-700">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque. Sed euismod, nisl quis aliquam ultricies, nunc nisl aliquam nunc, eget aliquam massa nisl quis neque.
     </div>`;
 
     // Restore initial view when Home is clicked
