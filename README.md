@@ -16,5 +16,3 @@ Access this url (TBD), to get the best mobile experience, install it (=save to h
 TBD
 
 ## Development
-
-This project uses [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) for development.
