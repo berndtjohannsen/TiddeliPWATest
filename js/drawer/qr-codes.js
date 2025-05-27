@@ -1,7 +1,15 @@
 import { DrawerUtils } from './utils.js';
 
 export const QRCodesHandler = {
-    init() {
+    async init() {
+        console.log('QR Codes Handler: Initializing...');
+        
+        // Dynamically load QR libraries
+        await this.loadQRLibraries();
+        
+        console.log('QRCode available:', !!window.QRCode);
+        console.log('Html5Qrcode available:', !!window.Html5Qrcode);
+        
         DrawerUtils.restoreTopBar();
         DrawerUtils.restoreMainContent();
         const mainContent = DrawerUtils.getMainContent();
@@ -27,50 +35,133 @@ export const QRCodesHandler = {
             </div>
         `;
         this.initEvents();
+        console.log('QR Codes Handler: Initialization complete');
     },
+
+    async loadQRLibraries() {
+        return new Promise((resolve, reject) => {
+            // Check if libraries are already loaded
+            if (window.QRCode && window.Html5Qrcode) {
+                console.log('QR libraries already loaded');
+                resolve();
+                return;
+            }
+
+            console.log('Loading QR libraries...');
+            let loadedCount = 0;
+            const totalLibraries = 2;
+
+            const checkAllLoaded = () => {
+                loadedCount++;
+                if (loadedCount === totalLibraries) {
+                    console.log('All QR libraries loaded');
+                    resolve();
+                }
+            };
+
+            // Load QRCode library
+            const qrcodeScript = document.createElement('script');
+            qrcodeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+            qrcodeScript.onload = () => {
+                console.log('QRCode library loaded');
+                checkAllLoaded();
+            };
+            qrcodeScript.onerror = (error) => {
+                console.error('Error loading QRCode library:', error);
+                reject(error);
+            };
+            document.body.appendChild(qrcodeScript);
+
+            // Load Html5Qrcode library
+            const html5qrcodeScript = document.createElement('script');
+            html5qrcodeScript.src = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+            html5qrcodeScript.onload = () => {
+                console.log('Html5Qrcode library loaded');
+                checkAllLoaded();
+            };
+            html5qrcodeScript.onerror = (error) => {
+                console.error('Error loading Html5Qrcode library:', error);
+                reject(error);
+            };
+            document.body.appendChild(html5qrcodeScript);
+        });
+    },
+
     initEvents() {
+        console.log('QR Codes Handler: Setting up events...');
         // QR Generation
         const input = document.getElementById('qr-input');
         const btn = document.getElementById('qr-generate');
         const output = document.getElementById('qr-output');
+        
+        if (!input || !btn || !output) {
+            console.error('QR Codes Handler: Could not find required elements');
+            return;
+        }
+        
         btn.addEventListener('click', () => {
+            console.log('Generate button clicked');
             if (input.value.trim()) {
-                // Clear previous QR code
-                output.innerHTML = '';
-                // Create new QR code
-                new window.QRCode(output, {
-                    text: input.value.trim(),
-                    width: 220,
-                    height: 220,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: window.QRCode.CorrectLevel.H
-                });
+                try {
+                    // Clear previous QR code
+                    output.innerHTML = '';
+                    // Create new QR code
+                    new window.QRCode(output, {
+                        text: input.value.trim(),
+                        width: 220,
+                        height: 220,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: window.QRCode.CorrectLevel.H
+                    });
+                    console.log('QR code generated successfully');
+                } catch (error) {
+                    console.error('Error generating QR code:', error);
+                    alert('Error generating QR code. Please try again.');
+                }
             }
         });
+        
         // QR Scanning
         let html5Qr;
         const scanBtn = document.getElementById('qr-scan');
         const readerDiv = document.getElementById('qr-reader');
         const resultDiv = document.getElementById('qr-result');
+        
+        if (!scanBtn || !readerDiv || !resultDiv) {
+            console.error('QR Codes Handler: Could not find required elements for scanning');
+            return;
+        }
+        
         scanBtn.addEventListener('click', () => {
+            console.log('Scan button clicked');
             if (!html5Qr) {
-                html5Qr = new window.Html5Qrcode('qr-reader');
+                try {
+                    html5Qr = new window.Html5Qrcode('qr-reader');
+                    console.log('QR scanner initialized');
+                } catch (error) {
+                    console.error('Error initializing QR scanner:', error);
+                    resultDiv.textContent = 'Error initializing camera. Please try again.';
+                    return;
+                }
             }
             resultDiv.textContent = '';
             html5Qr.start(
                 { facingMode: 'environment' },
                 { fps: 10, qrbox: 200 },
                 (decodedText) => {
+                    console.log('QR code scanned:', decodedText);
                     resultDiv.textContent = `Result: ${decodedText}`;
                     html5Qr.stop();
                 },
                 (errorMsg) => {
-                    // Optionally show scan errors
+                    console.log('Scan error:', errorMsg);
                 }
             ).catch(err => {
+                console.error('Camera error:', err);
                 resultDiv.textContent = 'Camera error or permission denied.';
             });
         });
+        console.log('QR Codes Handler: Events setup complete');
     }
 }; 
