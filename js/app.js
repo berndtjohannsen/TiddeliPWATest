@@ -6,6 +6,7 @@ import { DataEntryHandler } from './drawer/data-entry.js';
 import { CommunicationHandler } from './drawer/communication.js';
 import { UIDemoHandler } from './drawer/ui-demo.js';
 import { DrawerUtils } from './drawer/utils.js';
+import { QRCodesHandler } from './drawer/qr-codes.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -89,7 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'Camera': () => CameraHandler.init(),
             'Sensors': () => SensorsHandler.init(),
             'Communication': () => CommunicationHandler.init(),
-            'UI Demo': () => UIDemoHandler.init()
+            'UI Demo': () => UIDemoHandler.init(),
+            'QR codes': () => QRCodesHandler.init()
         },
 
         init() {
