@@ -9,6 +9,8 @@ export const MicrophoneHandler = {
     analyser: null,
     dataArray: null,
     animationFrame: null,
+    audioSource: null,
+    scriptProcessor: null,
 
     async init() {
         try {
@@ -46,9 +48,14 @@ export const MicrophoneHandler = {
                                         </button>
                                         <div id="recording-timer" class="text-gray-600">00:00</div>
                                     </div>
-                                    <div class="flex items-center gap-2">
-                                        <span id="volume-indicator" class="font-mono text-lg text-gray-800">0</span>
-                                        <div class="text-sm text-gray-600">Volume Level</div>
+                                    <div class="flex flex-col gap-1 w-full">
+                                        <div class="flex items-center gap-2">
+                                            <span id="volume-indicator" class="font-mono text-lg text-gray-800">0</span>
+                                            <div class="text-sm text-gray-600">Volume Level</div>
+                                        </div>
+                                        <div class="w-full h-3 bg-gray-200 rounded overflow-hidden">
+                                            <div id="volume-bar" class="h-3 rounded transition-all duration-100" style="width:0%;background:linear-gradient(90deg,#22c55e,#facc15,#ef4444);"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -133,19 +140,38 @@ export const MicrophoneHandler = {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     
-                    // Set up audio context and analyzer
                     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    await this.audioContext.resume(); // Ensure context is running
+                    await this.audioContext.resume();
                     this.analyser = this.audioContext.createAnalyser();
                     this.analyser.fftSize = 256;
                     const bufferLength = this.analyser.frequencyBinCount;
                     this.dataArray = new Uint8Array(bufferLength);
-                    
-                    const source = this.audioContext.createMediaStreamSource(stream);
-                    source.connect(this.analyser);
-                    
-                    // Start volume visualization
+
+                    // Create and keep a reference to the source
+                    this.audioSource = this.audioContext.createMediaStreamSource(stream);
+                    this.audioSource.connect(this.analyser);
+                    // Optionally: this.audioSource.connect(this.audioContext.destination); // for monitoring
+
+                    // Start volume visualization (try analyser first)
                     this.startVolumeVisualization(volumeIndicator);
+
+                    // --- ScriptProcessorNode fallback for volume metering ---
+                    this.scriptProcessor = this.audioContext.createScriptProcessor(256, 1, 1);
+                    this.audioSource.connect(this.scriptProcessor);
+                    this.scriptProcessor.connect(this.audioContext.destination); // You can disconnect if you don't want to hear yourself
+                    this.scriptProcessor.onaudioprocess = (event) => {
+                        const input = event.inputBuffer.getChannelData(0);
+                        let sum = 0;
+                        for (let i = 0; i < input.length; i++) {
+                            sum += input[i] * input[i];
+                        }
+                        const rms = Math.sqrt(sum / input.length);
+                        const volume = Math.round(Math.min(100, rms * 200));
+                        document.getElementById('volume-indicator').textContent = volume;
+                        const volumeBar = document.getElementById('volume-bar');
+                        if (volumeBar) volumeBar.style.width = volume + '%';
+                    };
+                    // --- End fallback ---
 
                     this.mediaRecorder = new MediaRecorder(stream);
                     this.audioChunks = [];
@@ -275,18 +301,25 @@ export const MicrophoneHandler = {
     },
 
     startVolumeVisualization(volumeIndicator) {
+        const volumeBar = document.getElementById('volume-bar');
         const updateVolume = () => {
             if (!this.analyser || !this.isRecording) return;
             this.analyser.getByteTimeDomainData(this.dataArray);
-            // Calculate RMS (root mean square) for volume
-            let sumSquares = 0;
-            for (let i = 0; i < this.dataArray.length; i++) {
-                const val = (this.dataArray[i] - 128) / 128;
-                sumSquares += val * val;
+            const all128 = this.dataArray.every(v => v === 128);
+            if (all128) {
+                volumeIndicator.textContent = '0 (no signal)';
+                if (volumeBar) volumeBar.style.width = '0%';
+            } else {
+                let sumSquares = 0;
+                for (let i = 0; i < this.dataArray.length; i++) {
+                    const val = (this.dataArray[i] - 128) / 128;
+                    sumSquares += val * val;
+                }
+                const rms = Math.sqrt(sumSquares / this.dataArray.length);
+                const volume = Math.round(Math.min(100, rms * 200));
+                volumeIndicator.textContent = volume;
+                if (volumeBar) volumeBar.style.width = volume + '%';
             }
-            const rms = Math.sqrt(sumSquares / this.dataArray.length);
-            const volume = Math.round(rms * 100); // 0-100 scale
-            volumeIndicator.textContent = volume;
             this.animationFrame = requestAnimationFrame(updateVolume);
         };
         updateVolume();
@@ -300,6 +333,10 @@ export const MicrophoneHandler = {
         if (this.audioContext) {
             this.audioContext.close();
             this.audioContext = null;
+        }
+        if (this.scriptProcessor) {
+            this.scriptProcessor.disconnect();
+            this.scriptProcessor = null;
         }
     }
 };
