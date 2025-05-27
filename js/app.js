@@ -3,6 +3,8 @@ import { GpsHandler } from './drawer/gps.js';
 import { SensorsHandler } from './drawer/sensors.js';
 import { CameraHandler } from './drawer/camera.js';
 import { DataEntryHandler } from './drawer/data-entry.js';
+import { CommunicationHandler } from './drawer/communication.js';
+import { UIDemoHandler } from './drawer/ui-demo.js';
 import { DrawerUtils } from './drawer/utils.js';
 
 // Main application logic
@@ -85,7 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
             'Test GPS': () => GpsHandler.init(),
             'Data Entry': () => DataEntryHandler.init(),
             'Camera': () => CameraHandler.init(),
-            'Sensors': () => SensorsHandler.init()
+            'Sensors': () => SensorsHandler.init(),
+            'Communication': () => CommunicationHandler.init(),
+            'UI Demo': () => UIDemoHandler.init()
         },
 
         init() {

@@ -10,20 +10,53 @@ export const SensorsHandler = {
             <div class="space-y-4">
                 <h2 class="text-lg font-semibold mb-2">Available Sensors & Live Values</h2>
                 <ul class="list-disc pl-6 text-base" id="sensor-list">
+                    <!-- Motion Sensors -->
                     <li id="sensor-accel">Accelerometer: <span class="sensor-value">Checking...</span></li>
                     <li id="sensor-gyro">Gyroscope: <span class="sensor-value">Checking...</span></li>
-                    <li id="sensor-geo">Geolocation: <span class="sensor-value">Checking...</span></li>
-                    <li id="sensor-battery">Battery: <span class="sensor-value">Checking...</span></li>
-                    <li id="sensor-light">Ambient Light: <span class="sensor-value">Checking...</span></li>
-                    <li id="sensor-magnet">Magnetometer: <span class="sensor-value">Checking...</span></li>
-                    <li id="sensor-absori">Absolute Orientation: <span class="sensor-value">Checking...</span></li>
-                    <li id="sensor-relori">Relative Orientation: <span class="sensor-value">Checking...</span></li>
                     <li id="sensor-linaccel">Linear Acceleration: <span class="sensor-value">Checking...</span></li>
                     <li id="sensor-gravity">Gravity: <span class="sensor-value">Checking...</span></li>
-                    <li id="sensor-camera">Camera/Microphone: <span class="sensor-value">Checking...</span></li>
+                    
+                    <!-- Orientation Sensors -->
+                    <li id="sensor-absori">Absolute Orientation: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-relori">Relative Orientation: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-magnet">Magnetometer: <span class="sensor-value">Checking...</span></li>
+                    
+                    <!-- Environmental Sensors -->
+                    <li id="sensor-light">Ambient Light: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-proximity">Proximity: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-humidity">Humidity: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-pressure">Barometric Pressure: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-temperature">Temperature: <span class="sensor-value">Checking...</span></li>
+                    
+                    <!-- Location Sensors -->
+                    <li id="sensor-geo">Geolocation: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-altitude">Altitude: <span class="sensor-value">Checking...</span></li>
+                    
+                    <!-- Device Sensors -->
+                    <li id="sensor-battery">Battery: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-network">Network Status: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-vibration">Vibration: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-wake-lock">Wake Lock: <span class="sensor-value">Checking...</span></li>
+                    
+                    <!-- Media Sensors -->
+                    <li id="sensor-camera">Camera: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-microphone">Microphone: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-audio">Audio Input: <span class="sensor-value">Checking...</span></li>
+                    
+                    <!-- Biometric Sensors -->
+                    <li id="sensor-fingerprint">Fingerprint: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-face">Face ID: <span class="sensor-value">Checking...</span></li>
+                    
+                    <!-- Advanced Sensors -->
+                    <li id="sensor-nfc">NFC: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-bluetooth">Bluetooth: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-usb">USB: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-gamepad">Gamepad: <span class="sensor-value">Checking...</span></li>
+                    <li id="sensor-midi">MIDI: <span class="sensor-value">Checking...</span></li>
                 </ul>
                 <p class="text-xs text-gray-500 mt-2">
-                    Note: Some sensors may require permission or may not be supported on all devices/browsers.
+                    Note: Most sensors require permission and may not be supported on all devices/browsers.
+                    Some sensors are experimental or not yet widely supported.
                 </p>
             </div>
         `;
@@ -38,6 +71,18 @@ export const SensorsHandler = {
         this.initLinearAcceleration();
         this.initGravity();
         this.initCamera();
+        this.initNetworkStatus();
+        this.initVibration();
+        this.initWakeLock();
+        this.initMicrophone();
+        this.initAudioInput();
+        this.initFingerprint();
+        this.initFaceID();
+        this.initNFC();
+        this.initBluetooth();
+        this.initUSB();
+        this.initGamepad();
+        this.initMIDI();
     },
 
     initAccelerometer() {
@@ -219,6 +264,119 @@ export const SensorsHandler = {
             camEl.textContent = 'Available (see Camera option)';
         } else {
             camEl.textContent = 'Not available';
+        }
+    },
+
+    initNetworkStatus() {
+        const networkEl = document.querySelector('#sensor-network .sensor-value');
+        if ('connection' in navigator) {
+            const updateNetworkInfo = () => {
+                const conn = navigator.connection;
+                networkEl.textContent = `${conn.effectiveType} (${conn.downlink}Mbps)`;
+            };
+            navigator.connection.addEventListener('change', updateNetworkInfo);
+            updateNetworkInfo();
+        } else {
+            networkEl.textContent = 'Not available';
+        }
+    },
+
+    initVibration() {
+        const vibEl = document.querySelector('#sensor-vibration .sensor-value');
+        if ('vibrate' in navigator) {
+            vibEl.textContent = 'Available';
+        } else {
+            vibEl.textContent = 'Not available';
+        }
+    },
+
+    initWakeLock() {
+        const wakeEl = document.querySelector('#sensor-wake-lock .sensor-value');
+        if ('wakeLock' in navigator) {
+            wakeEl.textContent = 'Available';
+        } else {
+            wakeEl.textContent = 'Not available';
+        }
+    },
+
+    initMicrophone() {
+        const micEl = document.querySelector('#sensor-microphone .sensor-value');
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            micEl.textContent = 'Available';
+        } else {
+            micEl.textContent = 'Not available';
+        }
+    },
+
+    initAudioInput() {
+        const audioEl = document.querySelector('#sensor-audio .sensor-value');
+        if (window.AudioContext || window.webkitAudioContext) {
+            audioEl.textContent = 'Available';
+        } else {
+            audioEl.textContent = 'Not available';
+        }
+    },
+
+    initFingerprint() {
+        const fpEl = document.querySelector('#sensor-fingerprint .sensor-value');
+        if (window.PublicKeyCredential) {
+            fpEl.textContent = 'Available';
+        } else {
+            fpEl.textContent = 'Not available';
+        }
+    },
+
+    initFaceID() {
+        const faceEl = document.querySelector('#sensor-face .sensor-value');
+        if (window.PublicKeyCredential) {
+            faceEl.textContent = 'Available';
+        } else {
+            faceEl.textContent = 'Not available';
+        }
+    },
+
+    initNFC() {
+        const nfcEl = document.querySelector('#sensor-nfc .sensor-value');
+        if ('NDEFReader' in window) {
+            nfcEl.textContent = 'Available';
+        } else {
+            nfcEl.textContent = 'Not available';
+        }
+    },
+
+    initBluetooth() {
+        const btEl = document.querySelector('#sensor-bluetooth .sensor-value');
+        if ('bluetooth' in navigator) {
+            btEl.textContent = 'Available';
+        } else {
+            btEl.textContent = 'Not available';
+        }
+    },
+
+    initUSB() {
+        const usbEl = document.querySelector('#sensor-usb .sensor-value');
+        if ('usb' in navigator) {
+            usbEl.textContent = 'Available';
+        } else {
+            usbEl.textContent = 'Not available';
+        }
+    },
+
+    initGamepad() {
+        const gamepadEl = document.querySelector('#sensor-gamepad .sensor-value');
+        if ('getGamepads' in navigator) {
+            gamepadEl.textContent = 'Available';
+        } else {
+            gamepadEl.textContent = 'Not available';
+        }
+    },
+
+    initMIDI() {
+        const midiEl = document.querySelector('#sensor-midi .sensor-value');
+        if ('requestMIDIAccess' in navigator) {
+            midiEl.textContent = 'Available';
+        } else {
+            midiEl.textContent = 'Not available';
         }
     }
 }; 

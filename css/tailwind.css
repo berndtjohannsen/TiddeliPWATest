@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for Tiddeli PWA */
+@layer components {
+    .input-primary {
+        @apply w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent;
+    }
+    
+    .btn-primary {
+        @apply bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2;
+    }
+    
+    .btn-secondary {
+        @apply bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+    }
+    
+    .card {
+        @apply bg-white p-4 rounded-lg shadow;
+    }
+    
+    .card-title {
+        @apply text-lg font-medium mb-3;
+    }
+} 

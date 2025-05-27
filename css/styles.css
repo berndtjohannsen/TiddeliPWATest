@@ -49,4 +49,21 @@ main {
     border-radius: 1rem;
     margin: 2rem auto;
   }
+}
+
+/* Top bar styles */
+.top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Dropdown menu styles */
+#dropdown-menu {
+    z-index: 1001;
+}
+
+/* Map container styles */
+#map {
+    z-index: 1;
 } 

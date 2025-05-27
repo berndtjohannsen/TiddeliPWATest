@@ -13,7 +13,7 @@ export const GpsHandler = {
                     maxZoom: 19,
                     attribution: '© OpenStreetMap'
                 }).addTo(map);
-                
+
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(pos => {
                         const lat = pos.coords.latitude;
