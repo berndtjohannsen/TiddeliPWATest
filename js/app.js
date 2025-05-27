@@ -10,6 +10,7 @@ import { QRCodesHandler } from './drawer/qr-codes.js';
 import { NFCHandler } from './drawer/nfc.js';
 import { NotificationsHandler } from './drawer/notifications.js';
 import { PhoneHandler } from './drawer/phone.js';
+import { MicrophoneHandler } from './drawer/microphone.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -97,7 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'QR codes': () => QRCodesHandler.init(),
             'NFC Demo': () => NFCHandler.init(),
             'Notifications': () => NotificationsHandler.init(),
-            'Phone Demo': () => PhoneHandler.init()
+            'Phone Demo': () => PhoneHandler.init(),
+            'Microphone': () => MicrophoneHandler.init()
         },
 
         init() {
