@@ -7,6 +7,9 @@ import { CommunicationHandler } from './drawer/communication.js';
 import { UIDemoHandler } from './drawer/ui-demo.js';
 import { DrawerUtils } from './drawer/utils.js';
 import { QRCodesHandler } from './drawer/qr-codes.js';
+import { NFCHandler } from './drawer/nfc.js';
+import { NotificationsHandler } from './drawer/notifications.js';
+import { PhoneHandler } from './drawer/phone.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -91,26 +94,61 @@ document.addEventListener('DOMContentLoaded', () => {
             'Sensors': () => SensorsHandler.init(),
             'Communication': () => CommunicationHandler.init(),
             'UI Demo': () => UIDemoHandler.init(),
-            'QR codes': () => QRCodesHandler.init()
+            'QR codes': () => QRCodesHandler.init(),
+            'NFC Demo': () => NFCHandler.init(),
+            'Notifications': () => NotificationsHandler.init(),
+            'Phone Demo': () => PhoneHandler.init()
         },
 
         init() {
+            console.log('Initializing drawer options...');
             const dropdownMenu = document.getElementById('dropdown-menu');
-            if (!dropdownMenu) return;
+            if (!dropdownMenu) {
+                console.error('Dropdown menu not found!');
+                return;
+            }
 
+            // Ensure all menu items are present
+            const requiredOptions = Object.keys(this.handlers);
+            const existingOptions = Array.from(dropdownMenu.querySelectorAll('a')).map(opt => opt.textContent.trim());
+            
+            console.log('Required options:', requiredOptions);
+            console.log('Existing options:', existingOptions);
+
+            // Add any missing options
+            requiredOptions.forEach(option => {
+                if (!existingOptions.includes(option)) {
+                    console.log('Adding missing option:', option);
+                    const newOption = document.createElement('a');
+                    newOption.href = '#';
+                    newOption.className = 'flex items-center gap-2 px-5 py-3 text-base font-medium text-gray-800 hover:bg-indigo-50 rounded-lg transition';
+                    newOption.textContent = option;
+                    dropdownMenu.appendChild(newOption);
+                }
+            });
+
+            // Add event listeners to all options
             dropdownMenu.querySelectorAll('a').forEach(option => {
-                option.addEventListener('click', (e) => {
+                const text = option.textContent.trim();
+                console.log('Setting up handler for:', text);
+                
+                // Remove existing click listeners
+                const newOption = option.cloneNode(true);
+                option.parentNode.replaceChild(newOption, option);
+                
+                // Add new click listener
+                newOption.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     dropdownMenu.classList.add('hidden');
                     
-                    const text = option.textContent.trim();
                     const handler = this.handlers[text];
+                    console.log('Handler found for', text, ':', !!handler);
                     
                     if (handler) {
                         handler();
                     } else {
-                        // Default handler for unknown options
+                        console.warn('No handler found for:', text);
                         DrawerUtils.restoreTopBar();
                         DrawerUtils.restoreMainContent();
                     }
@@ -119,8 +157,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Initialize drawer options
-    DrawerOptions.init();
+    // Initialize drawer options on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOMContentLoaded - initializing drawer options');
+        DrawerOptions.init();
+    });
+
+    // Initialize drawer options on load (after refresh)
+    window.addEventListener('load', () => {
+        console.log('Window load - initializing drawer options');
+        DrawerOptions.init();
+    });
 
     // Store the initial main content HTML for restoration
     const initialMainContent = `<div class="text-base text-gray-700">
