@@ -12,6 +12,7 @@ import { NotificationsHandler } from './drawer/notifications.js';
 import { PhoneHandler } from './drawer/phone.js';
 import { MicrophoneHandler } from './drawer/microphone.js';
 import { GolfScoreCardHandler } from './drawer/golf-score-card.js';
+import { PDFHandler } from './drawer/pdf.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -101,7 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'Notifications': () => NotificationsHandler.init(),
             'Phone Demo': () => PhoneHandler.init(),
             'Microphone': () => MicrophoneHandler.init(),
-            'Golf Score Card': () => GolfScoreCardHandler.init()
+            'Golf Score Card': () => GolfScoreCardHandler.init(),
+            'PDF': () => PDFHandler.init()
         },
 
         init() {
