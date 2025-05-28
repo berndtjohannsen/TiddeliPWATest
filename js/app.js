@@ -16,6 +16,9 @@ import { PDFHandler } from './drawer/pdf.js';
 import { EmailHandler } from './drawer/email.js';
 import { LoadFromURLHandler } from './drawer/load-from-url.js';
 import { AIServiceHandler } from './drawer/ai-service.js';
+import { AudioPlaybackHandler } from './drawer/audio-playback.js';
+import { VideoHandler } from './drawer/video.js';
+import { ImageHandler } from './drawer/image.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -109,7 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'PDF': () => PDFHandler.init(),
             'Email': () => EmailHandler.init(),
             'Load from URL': () => LoadFromURLHandler.init(),
-            'AI Service': () => AIServiceHandler.init()
+            'AI Service': () => AIServiceHandler.init(),
+            'Audio Playback': () => AudioPlaybackHandler.init(),
+            'Video': () => VideoHandler.init(),
+            'Image': () => ImageHandler.init()
         },
 
         init() {
@@ -120,9 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Update dropdown menu structure for two columns, responsive
+            dropdownMenu.className = 'absolute left-4 mt-2 max-w-xs w-[95vw] bg-white rounded-lg shadow-lg py-2 z-50';
+            dropdownMenu.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-1"></div>';
+            const gridContainer = dropdownMenu.querySelector('.grid');
+
             // Ensure all menu items are present
             const requiredOptions = Object.keys(this.handlers);
-            const existingOptions = Array.from(dropdownMenu.querySelectorAll('a')).map(opt => opt.textContent.trim());
+            const existingOptions = Array.from(gridContainer.querySelectorAll('a')).map(opt => opt.textContent.trim());
             
             console.log('Required options:', requiredOptions);
             console.log('Existing options:', existingOptions);
@@ -133,14 +144,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Adding missing option:', option);
                     const newOption = document.createElement('a');
                     newOption.href = '#';
-                    newOption.className = 'flex items-center gap-2 px-5 py-3 text-base font-medium text-gray-800 hover:bg-indigo-50 rounded-lg transition';
+                    newOption.className = 'flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-indigo-50 transition';
                     newOption.textContent = option;
-                    dropdownMenu.appendChild(newOption);
+                    gridContainer.appendChild(newOption);
                 }
             });
 
             // Add event listeners to all options
-            dropdownMenu.querySelectorAll('a').forEach(option => {
+            gridContainer.querySelectorAll('a').forEach(option => {
                 const text = option.textContent.trim();
                 console.log('Setting up handler for:', text);
                 
