@@ -107,14 +107,33 @@ export const NFCHandler = {
                     ndef.addEventListener('reading', ({ message }) => {
                         console.log('NFC tag detected:', message);
                         const decoder = new TextDecoder();
-                        for (const record of message.records) {
-                            if (record.recordType === 'text') {
-                                const textDecoder = new TextDecoder(record.encoding);
-                                const text = textDecoder.decode(record.data);
-                                resultDiv.textContent = `Read: ${text}`;
-                                console.log('Successfully decoded NFC text:', text);
-                            }
+                        let output = '';
+                        if (message.records.length === 0) {
+                            output = '<div class="text-gray-500">No records found on tag.</div>';
+                        } else {
+                            output = '<ul class="list-disc list-inside">';
+                            message.records.forEach((record, idx) => {
+                                let recType = record.recordType;
+                                let value = '';
+                                if (recType === 'text') {
+                                    const textDecoder = new TextDecoder(record.encoding);
+                                    value = textDecoder.decode(record.data);
+                                    output += `<li><b>Text:</b> ${value}</li>`;
+                                } else if (recType === 'url') {
+                                    value = decoder.decode(record.data);
+                                    output += `<li><b>URL:</b> <a href="${value}" target="_blank" class="text-blue-600 underline">${value}</a></li>`;
+                                } else if (recType === 'mime') {
+                                    value = decoder.decode(record.data);
+                                    output += `<li><b>MIME (${record.mediaType}):</b> ${value}</li>`;
+                                } else {
+                                    // Unknown or custom type, show as hex
+                                    value = Array.from(new Uint8Array(record.data)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+                                    output += `<li><b>${recType} (raw):</b> <span class="font-mono">${value}</span></li>`;
+                                }
+                            });
+                            output += '</ul>';
                         }
+                        resultDiv.innerHTML = output;
                         statusDiv.textContent = 'Tag read successfully!';
                     });
 
