@@ -14,7 +14,21 @@ export const GolfScoreCardHandler = {
             { num: 1, par: 4, index: 11, strokes: 5, points: 1 },
             { num: 2, par: 5, index: 17, strokes: 5, points: 2 },
             { num: 3, par: 5, index: 5, strokes: 5, points: 2 },
-            // ... more holes can be added here
+            { num: 4, par: 4, index: 3, strokes: 4, points: 2 },
+            { num: 5, par: 3, index: 15, strokes: 3, points: 2 },
+            { num: 6, par: 4, index: 7, strokes: 4, points: 2 },
+            { num: 7, par: 4, index: 1, strokes: 4, points: 2 },
+            { num: 8, par: 3, index: 13, strokes: 3, points: 2 },
+            { num: 9, par: 5, index: 9, strokes: 5, points: 2 },
+            { num: 10, par: 4, index: 12, strokes: 4, points: 2 },
+            { num: 11, par: 5, index: 18, strokes: 5, points: 2 },
+            { num: 12, par: 5, index: 6, strokes: 5, points: 2 },
+            { num: 13, par: 4, index: 4, strokes: 4, points: 2 },
+            { num: 14, par: 3, index: 16, strokes: 3, points: 2 },
+            { num: 15, par: 4, index: 8, strokes: 4, points: 2 },
+            { num: 16, par: 4, index: 2, strokes: 4, points: 2 },
+            { num: 17, par: 3, index: 14, strokes: 3, points: 2 },
+            { num: 18, par: 5, index: 10, strokes: 5, points: 2 }
         ];
 
         mainContent.innerHTML = `
