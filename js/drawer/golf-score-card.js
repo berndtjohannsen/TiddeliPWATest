@@ -9,7 +9,12 @@ export const GolfScoreCardHandler = {
 
         // Example data for prototyping
         const courseName = "Kyssinge Golf (18 holes)";
-        const player = { name: "berndt", hcp: 0.8, shcp: -2, tee: 57, totalStrokes: 15, totalPoints: 5 };
+        const players = [
+            { name: "berndt", hcp: 0.8, shcp: -2, tee: 57, totalStrokes: 15, totalPoints: 5 },
+            { name: "player2", hcp: 1.2, shcp: -1, tee: 58, totalStrokes: 16, totalPoints: 4 },
+            { name: "player3", hcp: 2.0, shcp: 0, tee: 59, totalStrokes: 17, totalPoints: 3 },
+            { name: "player4", hcp: 3.0, shcp: 1, tee: 60, totalStrokes: 18, totalPoints: 2 }
+        ];
         const holes = [
             { num: 1, par: 4, index: 11, strokes: 5, points: 1 },
             { num: 2, par: 5, index: 17, strokes: 5, points: 2 },
@@ -36,8 +41,8 @@ export const GolfScoreCardHandler = {
                 <div class="sticky top-0 bg-white z-10 pb-2">
                     <div class="text-lg font-semibold">${courseName}</div>
                     <div class="flex items-center justify-between mt-1">
-                        <div class="font-medium">${player.name} (Hcp: ${player.hcp})</div>
-                        <div class="text-sm text-gray-500">Total: <span class="font-bold">${player.totalStrokes}</span> strokes, <span class="font-bold text-green-600">${player.totalPoints}</span> pts</div>
+                        <div class="font-medium">${players[0].name} (Hcp: ${players[0].hcp})</div>
+                        <div class="text-sm text-gray-500">Total: <span class="font-bold">${players[0].totalStrokes}</span> strokes, <span class="font-bold text-green-600">${players[0].totalPoints}</span> pts</div>
                     </div>
                 </div>
                 <div id="add-player-form" class="hidden bg-white border border-gray-200 rounded-lg p-4 space-y-2">
@@ -50,13 +55,31 @@ export const GolfScoreCardHandler = {
                     </div>
                 </div>
                 <div id="holes-list" class="divide-y rounded-lg border border-gray-200 bg-white">
+                    <div class="flex items-center px-2 py-2 gap-2 bg-gray-100 font-semibold">
+                        <div class="w-8 text-center" rowspan="2">Hole</div>
+                        <div class="w-10 text-center" rowspan="2">Par</div>
+                        <div class="w-12 text-center" rowspan="2">HCP</div>
+                        ${players.map((player, idx) => `
+                            <div class="flex flex-col items-center w-20" style="min-width:48px;">
+                                <div class="text-xs text-gray-700">${player.name}</div>
+                                <div class="flex w-full">
+                                    <div class="w-1/2 text-xs text-gray-500">Score</div>
+                                    <div class="w-1/2 text-xs text-gray-500">PTs</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                     ${holes.map(hole => `
                         <div class="flex items-center px-2 py-2 gap-2 golf-hole-row" data-hole="${hole.num}">
                             <div class="w-8 text-center font-bold text-gray-700">${hole.num}</div>
-                            <div class="w-10 text-center text-xs text-gray-500">Par ${hole.par}</div>
-                            <div class="w-12 text-center text-xs text-gray-400">HCP ${hole.index}</div>
-                            <input type="number" min="1" max="15" value="${hole.strokes}" class="w-12 text-center rounded border border-gray-300 focus:ring-2 focus:ring-indigo-400 font-bold" />
-                            <div class="w-8 text-center font-semibold text-green-700">${hole.points}</div>
+                            <div class="w-10 text-center text-xs text-gray-500">${hole.par}</div>
+                            <div class="w-12 text-center text-xs text-gray-400">${hole.index}</div>
+                            ${players.map((player, idx) => `
+                                <div class="flex w-20 items-center" style="min-width:48px;">
+                                    <input type="number" min="1" max="15" value="${hole.strokes}" class="w-1/2 text-center rounded border border-gray-300 focus:ring-2 focus:ring-indigo-400 font-bold" data-player="${idx}" data-hole="${hole.num}" />
+                                    <div class="w-1/2 text-center font-semibold text-green-700">${hole.points}</div>
+                                </div>
+                            `).join('')}
                         </div>
                     `).join('')}
                 </div>
