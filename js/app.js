@@ -13,6 +13,9 @@ import { PhoneHandler } from './drawer/phone.js';
 import { MicrophoneHandler } from './drawer/microphone.js';
 import { GolfScoreCardHandler } from './drawer/golf-score-card.js';
 import { PDFHandler } from './drawer/pdf.js';
+import { EmailHandler } from './drawer/email.js';
+import { LoadFromURLHandler } from './drawer/load-from-url.js';
+import { AIServiceHandler } from './drawer/ai-service.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -103,7 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'Phone Demo': () => PhoneHandler.init(),
             'Microphone': () => MicrophoneHandler.init(),
             'Golf Score Card': () => GolfScoreCardHandler.init(),
-            'PDF': () => PDFHandler.init()
+            'PDF': () => PDFHandler.init(),
+            'Email': () => EmailHandler.init(),
+            'Load from URL': () => LoadFromURLHandler.init(),
+            'AI Service': () => AIServiceHandler.init()
         },
 
         init() {
