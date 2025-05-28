@@ -19,6 +19,7 @@ import { AIServiceHandler } from './drawer/ai-service.js';
 import { AudioPlaybackHandler } from './drawer/audio-playback.js';
 import { VideoHandler } from './drawer/video.js';
 import { ImageHandler } from './drawer/image.js';
+import { BiometricHandler } from './drawer/biometric.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -115,7 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'AI Service': () => AIServiceHandler.init(),
             'Audio Playback': () => AudioPlaybackHandler.init(),
             'Video': () => VideoHandler.init(),
-            'Image': () => ImageHandler.init()
+            'Image': () => ImageHandler.init(),
+            'Biometric Auth': () => BiometricHandler.init()
         },
 
         init() {
