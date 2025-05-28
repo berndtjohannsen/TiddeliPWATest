@@ -1,0 +1,83 @@
+import { DrawerUtils } from './utils.js';
+
+// Mobile-friendly golf score card prototype
+export const GolfScoreCardHandler = {
+    async init() {
+        DrawerUtils.restoreTopBar();
+        DrawerUtils.restoreMainContent();
+        const mainContent = DrawerUtils.getMainContent();
+
+        // Example data for prototyping
+        const courseName = "Kyssinge Golf (18 holes)";
+        const player = { name: "berndt", hcp: 0.8, shcp: -2, tee: 57, totalStrokes: 15, totalPoints: 5 };
+        const holes = [
+            { num: 1, par: 4, index: 11, strokes: 5, points: 1 },
+            { num: 2, par: 5, index: 17, strokes: 5, points: 2 },
+            { num: 3, par: 5, index: 5, strokes: 5, points: 2 },
+            // ... more holes can be added here
+        ];
+
+        mainContent.innerHTML = `
+            <div class="space-y-4">
+                <div class="sticky top-0 bg-white z-10 pb-2">
+                    <div class="text-lg font-semibold">${courseName}</div>
+                    <div class="flex items-center justify-between mt-1">
+                        <div class="font-medium">${player.name} (Hcp: ${player.hcp})</div>
+                        <div class="text-sm text-gray-500">Total: <span class="font-bold">${player.totalStrokes}</span> strokes, <span class="font-bold text-green-600">${player.totalPoints}</span> pts</div>
+                    </div>
+                </div>
+                <div id="add-player-form" class="hidden bg-white border border-gray-200 rounded-lg p-4 space-y-2">
+                    <div class="font-semibold mb-2">Add Player</div>
+                    <input id="new-player-name" type="text" class="input-primary w-full" placeholder="Name" />
+                    <input id="new-player-hcp" type="number" class="input-primary w-full" placeholder="Handicap" />
+                    <div class="flex gap-2 mt-2">
+                        <button id="add-player-confirm" class="btn-primary flex-1">Add</button>
+                        <button id="add-player-cancel" class="btn-primary bg-gray-300 text-gray-700 flex-1">Cancel</button>
+                    </div>
+                </div>
+                <div id="holes-list" class="divide-y rounded-lg border border-gray-200 bg-white">
+                    ${holes.map(hole => `
+                        <div class="flex items-center px-2 py-2 gap-2 golf-hole-row" data-hole="${hole.num}">
+                            <div class="w-8 text-center font-bold text-gray-700">${hole.num}</div>
+                            <div class="w-10 text-center text-xs text-gray-500">Par ${hole.par}</div>
+                            <div class="w-12 text-center text-xs text-gray-400">HCP ${hole.index}</div>
+                            <input type="number" min="1" max="15" value="${hole.strokes}" class="w-12 text-center rounded border border-gray-300 focus:ring-2 focus:ring-indigo-400 font-bold" />
+                            <div class="w-8 text-center font-semibold text-green-700">${hole.points}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="flex justify-between mt-4">
+                    <button id="add-player-btn" class="btn-primary">Add Player</button>
+                    <button id="next-hole-btn" class="btn-primary">Next Hole</button>
+                </div>
+            </div>
+        `;
+
+        // Add Player button logic (UI only)
+        document.getElementById('add-player-btn').onclick = () => {
+            document.getElementById('add-player-form').classList.remove('hidden');
+        };
+        document.getElementById('add-player-cancel').onclick = () => {
+            document.getElementById('add-player-form').classList.add('hidden');
+        };
+        document.getElementById('add-player-confirm').onclick = () => {
+            // UI only: just close the form and show a toast
+            document.getElementById('add-player-form').classList.add('hidden');
+            alert('Player added (UI only, not persistent)');
+        };
+
+        // Next Hole button logic (UI only)
+        let currentHole = 1;
+        document.getElementById('next-hole-btn').onclick = () => {
+            const rows = Array.from(document.querySelectorAll('.golf-hole-row'));
+            if (currentHole < rows.length) {
+                rows.forEach(row => row.classList.remove('bg-yellow-100'));
+                rows[currentHole].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                rows[currentHole].classList.add('bg-yellow-100');
+                currentHole++;
+            } else {
+                alert('You are at the last hole!');
+            }
+        };
+    }
+}; 

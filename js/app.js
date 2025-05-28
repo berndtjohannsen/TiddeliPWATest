@@ -11,6 +11,7 @@ import { NFCHandler } from './drawer/nfc.js';
 import { NotificationsHandler } from './drawer/notifications.js';
 import { PhoneHandler } from './drawer/phone.js';
 import { MicrophoneHandler } from './drawer/microphone.js';
+import { GolfScoreCardHandler } from './drawer/golf-score-card.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -99,7 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'NFC Demo': () => NFCHandler.init(),
             'Notifications': () => NotificationsHandler.init(),
             'Phone Demo': () => PhoneHandler.init(),
-            'Microphone': () => MicrophoneHandler.init()
+            'Microphone': () => MicrophoneHandler.init(),
+            'Golf Score Card': () => GolfScoreCardHandler.init()
         },
 
         init() {
