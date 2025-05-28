@@ -76,12 +76,31 @@ export const GolfScoreCardHandler = {
                             <div class="w-12 text-center text-xs text-gray-400">${hole.index}</div>
                             ${players.map((player, idx) => `
                                 <div class="flex w-20 items-center" style="min-width:48px;">
-                                    <input type="number" min="1" max="15" value="${hole.strokes}" class="w-1/2 text-center rounded border border-gray-300 focus:ring-2 focus:ring-indigo-400 font-bold" data-player="${idx}" data-hole="${hole.num}" />
+                                    <div class="w-1/2 text-center rounded border border-gray-300 focus:ring-2 focus:ring-indigo-400 font-bold" data-player="${idx}" data-hole="${hole.num}" data-player-name="${player.name}" onclick="showScoreInput(this)">${hole.strokes}</div>
                                     <div class="w-1/2 text-center font-semibold text-green-700">${hole.points}</div>
                                 </div>
                             `).join('')}
                         </div>
                     `).join('')}
+                </div>
+                <div id="score-input-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-4 rounded-lg shadow-lg">
+                        <div id="score-input-header" class="text-lg font-semibold mb-2 text-center"></div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="btn-primary" onclick="setScore(1)">1</button>
+                            <button class="btn-primary" onclick="setScore(2)">2</button>
+                            <button class="btn-primary" onclick="setScore(3)">3</button>
+                            <button class="btn-primary" onclick="setScore(4)">4</button>
+                            <button class="btn-primary" onclick="setScore(5)">5</button>
+                            <button class="btn-primary" onclick="setScore(6)">6</button>
+                            <button class="btn-primary" onclick="setScore(7)">7</button>
+                            <button class="btn-primary" onclick="setScore(8)">8</button>
+                            <button class="btn-primary" onclick="setScore(9)">9</button>
+                            <button class="btn-primary" onclick="setScore('-')">-</button>
+                            <button class="btn-primary" onclick="setScore('')">Clear</button>
+                            <button class="btn-primary" onclick="closeScoreInput()">Done</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex justify-between mt-4">
                     <button id="add-player-btn" class="btn-primary">Add Player</button>
@@ -115,6 +134,26 @@ export const GolfScoreCardHandler = {
             } else {
                 alert('You are at the last hole!');
             }
+        };
+
+        // Custom score input logic
+        window.showScoreInput = function(element) {
+            document.getElementById('score-input-modal').classList.remove('hidden');
+            window.currentScoreElement = element;
+            const playerName = element.getAttribute('data-player-name');
+            document.getElementById('score-input-header').textContent = playerName;
+        };
+
+        window.setScore = function(value) {
+            if (window.currentScoreElement) {
+                window.currentScoreElement.textContent = value;
+                closeScoreInput();
+            }
+        };
+
+        window.closeScoreInput = function() {
+            document.getElementById('score-input-modal').classList.add('hidden');
+            window.currentScoreElement = null;
         };
     }
 }; 
