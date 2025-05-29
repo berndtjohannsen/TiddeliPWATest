@@ -23,6 +23,8 @@ import { BiometricHandler } from './drawer/biometric.js';
 import { MagneticHandler } from './drawer/magnetic.js';
 import { UIMetersHandler } from './drawer/ui-meters.js';
 import { SpiritLevelHandler } from './drawer/spirit-level.js';
+import { GyroscopeHandler } from './drawer/gyroscope.js';
+import { SpeedHandler } from './drawer/speed.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -123,7 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
             'Biometric Auth': () => BiometricHandler.init(),
             'Magnetic': () => MagneticHandler.init(),
             'UI Meters': () => UIMetersHandler.init(),
-            'Spirit Level': () => SpiritLevelHandler.init()
+            'Spirit Level': () => SpiritLevelHandler.init(),
+            'Gyroscope': () => GyroscopeHandler.init(),
+            'Speed': () => SpeedHandler.init()
         },
 
         init() {
