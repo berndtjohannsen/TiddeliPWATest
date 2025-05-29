@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Update dropdown menu structure for two columns, responsive
-            dropdownMenu.className = 'absolute left-4 mt-2 max-w-xs w-[95vw] bg-white rounded-lg shadow-lg py-2 z-50';
+            dropdownMenu.className = 'absolute left-4 mt-2 max-w-xs w-[95vw] bg-white rounded-lg shadow-lg py-2 z-50 max-h-[70vh] overflow-y-auto';
             dropdownMenu.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-1"></div>';
             const gridContainer = dropdownMenu.querySelector('.grid');
 
