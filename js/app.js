@@ -20,6 +20,9 @@ import { AudioPlaybackHandler } from './drawer/audio-playback.js';
 import { VideoHandler } from './drawer/video.js';
 import { ImageHandler } from './drawer/image.js';
 import { BiometricHandler } from './drawer/biometric.js';
+import { MagneticHandler } from './drawer/magnetic.js';
+import { UIMetersHandler } from './drawer/ui-meters.js';
+import { SpiritLevelHandler } from './drawer/spirit-level.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -117,7 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'Audio Playback': () => AudioPlaybackHandler.init(),
             'Video': () => VideoHandler.init(),
             'Image': () => ImageHandler.init(),
-            'Biometric Auth': () => BiometricHandler.init()
+            'Biometric Auth': () => BiometricHandler.init(),
+            'Magnetic': () => MagneticHandler.init(),
+            'UI Meters': () => UIMetersHandler.init(),
+            'Spirit Level': () => SpiritLevelHandler.init()
         },
 
         init() {
