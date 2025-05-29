@@ -1,7 +1,7 @@
 # PWA test app
 
 ## Description
-This is a PWA app that is design to look and behave as a native app and show mobile specific feature. It is designed and tested for Chrome on Android
+This is a PWA app that is design to look and behave as a native app and show mobile specific feature. It is designed and tested for Chrome on Android. This is work in progress mostly done by Vibe coing in Cursor.
 
 ## How to use
 Access this url https://berndtjohannsen.github.io/TiddeliPWATest/. To get the best mobile experience, install it (=save to home screen) 

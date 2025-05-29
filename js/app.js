@@ -25,6 +25,7 @@ import { UIMetersHandler } from './drawer/ui-meters.js';
 import { SpiritLevelHandler } from './drawer/spirit-level.js';
 import { GyroscopeHandler } from './drawer/gyroscope.js';
 import { SpeedHandler } from './drawer/speed.js';
+import { PedometerHandler } from './drawer/pedometer.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -127,7 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'UI Meters': () => UIMetersHandler.init(),
             'Spirit Level': () => SpiritLevelHandler.init(),
             'Gyroscope': () => GyroscopeHandler.init(),
-            'Speed': () => SpeedHandler.init()
+            'Speed': () => SpeedHandler.init(),
+            'Pedometer': () => PedometerHandler.init()
         },
 
         init() {
