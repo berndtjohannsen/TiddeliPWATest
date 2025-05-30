@@ -9,7 +9,11 @@ module.exports = {
     'w-6', 'h-6', 'w-7', 'h-7'
   ],
   theme: {
-    extend: {},
+    extend: {
+      padding: {
+        'safe-area-inset-bottom': 'env(safe-area-inset-bottom)',
+      },
+    },
   },
   plugins: [],
 } 
