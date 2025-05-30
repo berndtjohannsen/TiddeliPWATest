@@ -289,4 +289,16 @@ function displayAppVersion() {
             versionDiv.textContent = `Version ${data.version}`;
         })
         .catch(() => {});
-} 
+}
+
+// Safe area insets fallback for devices that don't support env(safe-area-inset-bottom)
+function adjustForNavigationBar() {
+  const appContainer = document.querySelector('.app-container');
+  const navBarHeight = 56; // Default fallback height
+  const safeAreaBottom = window.env ? window.env('safe-area-inset-bottom') : 0;
+  const paddingBottom = safeAreaBottom || navBarHeight;
+  appContainer.style.paddingBottom = `${paddingBottom}px`;
+}
+
+window.addEventListener('load', adjustForNavigationBar);
+window.addEventListener('resize', adjustForNavigationBar); 
