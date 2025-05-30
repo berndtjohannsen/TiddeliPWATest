@@ -3,7 +3,7 @@
     "short_name": "TiddeliPWA",
     "description": "A Progressive Web App that mimics native app behavior",
     "start_url": "./",
-    "display": "fullscreen",
+    "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#ffffff",
     "orientation": "portrait",
