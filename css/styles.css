@@ -66,4 +66,11 @@ main {
 /* Map container styles */
 #map {
     z-index: 1;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: env(safe-area-inset-bottom);
 } 
