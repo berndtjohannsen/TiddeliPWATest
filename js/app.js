@@ -27,6 +27,8 @@ import { GyroscopeHandler } from './drawer/gyroscope.js';
 import { SpeedHandler } from './drawer/speed.js';
 import { PedometerHandler } from './drawer/pedometer.js';
 import { ProximityHandler } from './drawer/proximity.js';
+import { WebProxyHandler } from './drawer/web-proxy.js';
+import { DragDropHandler } from './drawer/drag-drop.js';
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
@@ -131,7 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
             'Gyroscope': () => GyroscopeHandler.init(),
             'Speed': () => SpeedHandler.init(),
             'Pedometer': () => PedometerHandler.init(),
-            'Proximity': () => ProximityHandler.init()
+            'Proximity': () => ProximityHandler.init(),
+            'Web Proxy': () => WebProxyHandler.init(),
+            'Drag and Drop': () => DragDropHandler.init()
         },
 
         init() {
@@ -291,14 +295,4 @@ function displayAppVersion() {
         .catch(() => {});
 }
 
-// Safe area insets fallback for devices that don't support env(safe-area-inset-bottom)
-function adjustForNavigationBar() {
-  const appContainer = document.querySelector('.app-container');
-  const navBarHeight = 56; // Default fallback height
-  const safeAreaBottom = window.env ? window.env('safe-area-inset-bottom') : 0;
-  const paddingBottom = safeAreaBottom || navBarHeight;
-  appContainer.style.paddingBottom = `${paddingBottom}px`;
-}
-
-window.addEventListener('load', adjustForNavigationBar);
-window.addEventListener('resize', adjustForNavigationBar); 
+// End of file 
