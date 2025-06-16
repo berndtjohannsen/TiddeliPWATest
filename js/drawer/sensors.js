@@ -83,6 +83,8 @@ export const SensorsHandler = {
         this.initUSB();
         this.initGamepad();
         this.initMIDI();
+        this.initTemperature();
+        this.initProximity();
     },
 
     initAccelerometer() {
@@ -160,6 +162,8 @@ export const SensorsHandler = {
 
     initMagnetometer() {
         const magnetEl = document.querySelector('#sensor-magnet .sensor-value');
+        
+        // Try the new Magnetometer API first
         if ('Magnetometer' in window) {
             try {
                 const sensor = new window.Magnetometer();
@@ -167,14 +171,38 @@ export const SensorsHandler = {
                     magnetEl.textContent = `x: ${sensor.x?.toFixed(2)}, y: ${sensor.y?.toFixed(2)}, z: ${sensor.z?.toFixed(2)}`;
                 });
                 sensor.addEventListener('error', () => {
-                    magnetEl.textContent = 'Permission denied or unavailable';
+                    // Fall back to legacy API if new API fails
+                    initLegacyMagnetometer(magnetEl);
                 });
                 sensor.start();
             } catch {
-                magnetEl.textContent = 'Not available';
+                // Fall back to legacy API if new API is not available
+                initLegacyMagnetometer(magnetEl);
             }
         } else {
-            magnetEl.textContent = 'Not available';
+            // Use legacy API if new API is not supported
+            initLegacyMagnetometer(magnetEl);
+        }
+
+        function initLegacyMagnetometer(element) {
+            if ('ondeviceorientation' in window) {
+                window.addEventListener('deviceorientation', function handler(e) {
+                    if (e.alpha !== null || e.beta !== null || e.gamma !== null) {
+                        // Convert orientation to magnetic field values
+                        const x = Math.round(e.alpha || 0);
+                        const y = Math.round(e.beta || 0);
+                        const z = Math.round(e.gamma || 0);
+                        element.textContent = `x: ${x}, y: ${y}, z: ${z}`;
+                        window.removeEventListener('deviceorientation', handler);
+                    }
+                });
+                setTimeout(() => { 
+                    if (element.textContent === 'Checking...') 
+                        element.textContent = 'No data (try on mobile)'; 
+                }, 2000);
+            } else {
+                element.textContent = 'Not available';
+            }
         }
     },
 
@@ -377,6 +405,50 @@ export const SensorsHandler = {
             midiEl.textContent = 'Available';
         } else {
             midiEl.textContent = 'Not available';
+        }
+    },
+
+    initTemperature() {
+        const tempEl = document.querySelector('#sensor-temperature .sensor-value');
+        if ('TemperatureSensor' in window) {
+            try {
+                const sensor = new window.TemperatureSensor();
+                sensor.addEventListener('reading', () => {
+                    tempEl.textContent = `${sensor.temperature.toFixed(1)}°C`;
+                });
+                sensor.addEventListener('error', () => {
+                    tempEl.textContent = 'Permission denied or unavailable';
+                });
+                sensor.start();
+            } catch {
+                tempEl.textContent = 'Not available';
+            }
+        } else {
+            tempEl.textContent = 'Not available';
+        }
+    },
+
+    initProximity() {
+        const proxEl = document.querySelector('#sensor-proximity .sensor-value');
+        if ('ProximitySensor' in window) {
+            try {
+                const sensor = new window.ProximitySensor();
+                sensor.addEventListener('reading', () => {
+                    if (sensor.near) {
+                        proxEl.textContent = 'Near';
+                    } else {
+                        proxEl.textContent = 'Far';
+                    }
+                });
+                sensor.addEventListener('error', () => {
+                    proxEl.textContent = 'Permission denied or unavailable';
+                });
+                sensor.start();
+            } catch {
+                proxEl.textContent = 'Not available';
+            }
+        } else {
+            proxEl.textContent = 'Not available';
         }
     }
 }; 

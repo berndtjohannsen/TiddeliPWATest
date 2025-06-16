@@ -42,6 +42,7 @@ export const MagneticHandler = {
         const strengthSpan = document.getElementById('mag-strength');
         const errorDiv = document.getElementById('mag-error');
 
+        // Try modern API first
         if ('Magnetometer' in window) {
             supportDiv.textContent = 'Magnetometer supported on this device/browser.';
             try {
@@ -50,27 +51,51 @@ export const MagneticHandler = {
                     const x = this.sensor.x;
                     const y = this.sensor.y;
                     const z = this.sensor.z;
-                    xSpan.textContent = x.toFixed(2);
-                    ySpan.textContent = y.toFixed(2);
-                    zSpan.textContent = z.toFixed(2);
-                    const strength = Math.sqrt(x*x + y*y + z*z);
-                    strengthSpan.textContent = strength.toFixed(2);
-                    // Calculate heading (in degrees, 0 = north)
-                    let heading = Math.atan2(y, x) * (180 / Math.PI);
-                    if (heading < 0) heading += 360;
-                    headingSpan.textContent = heading.toFixed(0) + '°';
-                    compassImg.style.transform = `rotate(${-heading}deg)`;
+                    this.updateDisplay(x, y, z, compassImg, headingSpan, xSpan, ySpan, zSpan, strengthSpan);
                 });
                 this.sensor.addEventListener('error', event => {
-                    errorDiv.textContent = 'Sensor error: ' + event.error.name;
+                    console.log('Modern API failed, falling back to legacy API');
+                    this.startLegacySensor(compassImg, headingSpan, xSpan, ySpan, zSpan, strengthSpan, errorDiv);
                 });
                 this.sensor.start();
             } catch (err) {
-                errorDiv.textContent = 'Could not start magnetometer: ' + err.message;
+                console.log('Modern API not available, falling back to legacy API');
+                this.startLegacySensor(compassImg, headingSpan, xSpan, ySpan, zSpan, strengthSpan, errorDiv);
             }
         } else {
-            supportDiv.textContent = 'Magnetometer not supported on this device/browser.';
+            console.log('Modern API not supported, using legacy API');
+            this.startLegacySensor(compassImg, headingSpan, xSpan, ySpan, zSpan, strengthSpan, errorDiv);
+        }
+    },
+
+    startLegacySensor(compassImg, headingSpan, xSpan, ySpan, zSpan, strengthSpan, errorDiv) {
+        if ('ondeviceorientation' in window) {
+            supportDiv.textContent = 'Using device orientation for magnetic data.';
+            window.addEventListener('deviceorientation', (e) => {
+                if (e.alpha !== null || e.beta !== null || e.gamma !== null) {
+                    // Convert orientation to magnetic field values
+                    const x = e.alpha || 0;
+                    const y = e.beta || 0;
+                    const z = e.gamma || 0;
+                    this.updateDisplay(x, y, z, compassImg, headingSpan, xSpan, ySpan, zSpan, strengthSpan);
+                }
+            });
+        } else {
+            supportDiv.textContent = 'Magnetic sensor not supported on this device/browser.';
             errorDiv.textContent = 'Try using Chrome on Android with a device that has a magnetic sensor.';
         }
+    },
+
+    updateDisplay(x, y, z, compassImg, headingSpan, xSpan, ySpan, zSpan, strengthSpan) {
+        xSpan.textContent = x.toFixed(2);
+        ySpan.textContent = y.toFixed(2);
+        zSpan.textContent = z.toFixed(2);
+        const strength = Math.sqrt(x*x + y*y + z*z);
+        strengthSpan.textContent = strength.toFixed(2);
+        // Calculate heading (in degrees, 0 = north)
+        let heading = Math.atan2(y, x) * (180 / Math.PI);
+        if (heading < 0) heading += 360;
+        headingSpan.textContent = heading.toFixed(0) + '°';
+        compassImg.style.transform = `rotate(${-heading}deg)`;
     }
 }; 

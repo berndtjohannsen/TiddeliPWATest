@@ -111,24 +111,24 @@ export const NFCHandler = {
                         if (message.records.length === 0) {
                             output = '<div class="text-gray-500">No records found on tag.</div>';
                         } else {
-                            output = '<ul class="list-disc list-inside">';
+                            output = '<ul class="list-disc list-inside space-y-2">';
                             message.records.forEach((record, idx) => {
                                 let recType = record.recordType;
                                 let value = '';
                                 if (recType === 'text') {
                                     const textDecoder = new TextDecoder(record.encoding);
                                     value = textDecoder.decode(record.data);
-                                    output += `<li><b>Text:</b> ${value}</li>`;
+                                    output += `<li class="text-gray-700"><b>Text:</b> ${value}</li>`;
                                 } else if (recType === 'url') {
                                     value = decoder.decode(record.data);
-                                    output += `<li><b>URL:</b> <a href="${value}" target="_blank" class="text-blue-600 underline">${value}</a></li>`;
+                                    output += `<li class="text-gray-700"><b>URL:</b> <a href="${value}" target="_blank" class="text-blue-600 underline">${value}</a></li>`;
                                 } else if (recType === 'mime') {
                                     value = decoder.decode(record.data);
-                                    output += `<li><b>MIME (${record.mediaType}):</b> ${value}</li>`;
+                                    output += `<li class="text-gray-700"><b>MIME (${record.mediaType}):</b> ${value}</li>`;
                                 } else {
                                     // Unknown or custom type, show as hex
                                     value = Array.from(new Uint8Array(record.data)).map(b => b.toString(16).padStart(2, '0')).join(' ');
-                                    output += `<li><b>${recType} (raw):</b> <span class="font-mono">${value}</span></li>`;
+                                    output += `<li class="text-gray-700"><b>${recType} (raw):</b> <span class="font-mono">${value}</span></li>`;
                                 }
                             });
                             output += '</ul>';
