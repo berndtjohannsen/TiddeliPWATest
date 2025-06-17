@@ -85,18 +85,29 @@ export const SensorsHandler = {
         this.initMIDI();
         this.initTemperature();
         this.initProximity();
+        this.initHumidity();
+        this.initPressure();
+        this.initAltitude();
     },
 
     initAccelerometer() {
         const accelEl = document.querySelector('#sensor-accel .sensor-value');
         if ('ondevicemotion' in window) {
+            let lastUpdate = 0;
             window.addEventListener('devicemotion', function handler(e) {
-                if (e.acceleration && (e.acceleration.x || e.acceleration.y || e.acceleration.z)) {
-                    accelEl.textContent = `x: ${e.acceleration.x?.toFixed(2)}, y: ${e.acceleration.y?.toFixed(2)}, z: ${e.acceleration.z?.toFixed(2)}`;
-                    window.removeEventListener('devicemotion', handler);
+                // Throttle updates to roughly 1 per second
+                const now = Date.now();
+                if (now - lastUpdate >= 1000) {
+                    if (e.acceleration && (e.acceleration.x || e.acceleration.y || e.acceleration.z)) {
+                        accelEl.textContent = `x: ${e.acceleration.x?.toFixed(2)}, y: ${e.acceleration.y?.toFixed(2)}, z: ${e.acceleration.z?.toFixed(2)}`;
+                        lastUpdate = now;
+                    }
                 }
             });
-            setTimeout(() => { if (accelEl.textContent === 'Checking...') accelEl.textContent = 'No data (try on mobile)'; }, 2000);
+            setTimeout(() => { 
+                if (accelEl.textContent === 'Checking...') 
+                    accelEl.textContent = 'No data (try on mobile)'; 
+            }, 2000);
         } else {
             accelEl.textContent = 'Not available';
         }
@@ -166,7 +177,7 @@ export const SensorsHandler = {
         // Try the new Magnetometer API first
         if ('Magnetometer' in window) {
             try {
-                const sensor = new window.Magnetometer();
+                const sensor = new window.Magnetometer({ frequency: 1 }); // 1 Hz update rate
                 sensor.addEventListener('reading', () => {
                     magnetEl.textContent = `x: ${sensor.x?.toFixed(2)}, y: ${sensor.y?.toFixed(2)}, z: ${sensor.z?.toFixed(2)}`;
                 });
@@ -186,14 +197,19 @@ export const SensorsHandler = {
 
         function initLegacyMagnetometer(element) {
             if ('ondeviceorientation' in window) {
+                let lastUpdate = 0;
                 window.addEventListener('deviceorientation', function handler(e) {
-                    if (e.alpha !== null || e.beta !== null || e.gamma !== null) {
-                        // Convert orientation to magnetic field values
-                        const x = Math.round(e.alpha || 0);
-                        const y = Math.round(e.beta || 0);
-                        const z = Math.round(e.gamma || 0);
-                        element.textContent = `x: ${x}, y: ${y}, z: ${z}`;
-                        window.removeEventListener('deviceorientation', handler);
+                    // Throttle updates to roughly 1 per second
+                    const now = Date.now();
+                    if (now - lastUpdate >= 1000) {
+                        if (e.alpha !== null || e.beta !== null || e.gamma !== null) {
+                            // Convert orientation to magnetic field values
+                            const x = Math.round(e.alpha || 0);
+                            const y = Math.round(e.beta || 0);
+                            const z = Math.round(e.gamma || 0);
+                            element.textContent = `x: ${x}, y: ${y}, z: ${z}`;
+                            lastUpdate = now;
+                        }
                     }
                 });
                 setTimeout(() => { 
@@ -211,38 +227,127 @@ export const SensorsHandler = {
         const absoriEl = document.querySelector('#sensor-absori .sensor-value');
         if ('AbsoluteOrientationSensor' in window) {
             try {
-                const sensor = new window.AbsoluteOrientationSensor();
+                const sensor = new window.AbsoluteOrientationSensor({ frequency: 1 }); // 1 Hz update rate
                 sensor.addEventListener('reading', () => {
-                    absoriEl.textContent = 'Available';
+                    // Convert quaternion to Euler angles (in degrees)
+                    const q = sensor.quaternion;
+                    const yaw = Math.atan2(2 * (q[0] * q[1] + q[2] * q[3]), 1 - 2 * (q[1] * q[1] + q[2] * q[2])) * (180 / Math.PI);
+                    const pitch = Math.asin(2 * (q[0] * q[2] - q[3] * q[1])) * (180 / Math.PI);
+                    const roll = Math.atan2(2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] * q[2] + q[3] * q[3])) * (180 / Math.PI);
+                    
+                    // Format the values
+                    absoriEl.textContent = `yaw: ${yaw.toFixed(1)}°, pitch: ${pitch.toFixed(1)}°, roll: ${roll.toFixed(1)}°`;
                 });
                 sensor.addEventListener('error', () => {
                     absoriEl.textContent = 'Permission denied or unavailable';
                 });
                 sensor.start();
             } catch {
-                absoriEl.textContent = 'Not available';
+                // Fall back to deviceorientation if AbsoluteOrientationSensor fails
+                if ('ondeviceorientationabsolute' in window) {
+                    let lastUpdate = 0;
+                    window.addEventListener('deviceorientationabsolute', function handler(e) {
+                        // Throttle updates to roughly 1 per second
+                        const now = Date.now();
+                        if (now - lastUpdate >= 1000) {
+                            if (e.alpha !== null || e.beta !== null || e.gamma !== null) {
+                                absoriEl.textContent = `α: ${e.alpha?.toFixed(1)}°, β: ${e.beta?.toFixed(1)}°, γ: ${e.gamma?.toFixed(1)}°`;
+                                lastUpdate = now;
+                            }
+                        }
+                    });
+                } else {
+                    absoriEl.textContent = 'Not available';
+                }
             }
         } else {
-            absoriEl.textContent = 'Not available';
+            // Fall back to deviceorientation if AbsoluteOrientationSensor is not supported
+            if ('ondeviceorientationabsolute' in window) {
+                let lastUpdate = 0;
+                window.addEventListener('deviceorientationabsolute', function handler(e) {
+                    // Throttle updates to roughly 1 per second
+                    const now = Date.now();
+                    if (now - lastUpdate >= 1000) {
+                        if (e.alpha !== null || e.beta !== null || e.gamma !== null) {
+                            absoriEl.textContent = `α: ${e.alpha?.toFixed(1)}°, β: ${e.beta?.toFixed(1)}°, γ: ${e.gamma?.toFixed(1)}°`;
+                            lastUpdate = now;
+                        }
+                    }
+                });
+            } else {
+                absoriEl.textContent = 'Not available';
+            }
         }
 
         // Relative Orientation
         const reloriEl = document.querySelector('#sensor-relori .sensor-value');
         if ('RelativeOrientationSensor' in window) {
             try {
-                const sensor = new window.RelativeOrientationSensor();
+                const sensor = new window.RelativeOrientationSensor({ frequency: 1 }); // 1 Hz update rate
                 sensor.addEventListener('reading', () => {
-                    reloriEl.textContent = 'Available';
+                    // Convert quaternion to Euler angles (in degrees)
+                    const q = sensor.quaternion;
+                    const yaw = Math.atan2(2 * (q[0] * q[1] + q[2] * q[3]), 1 - 2 * (q[1] * q[1] + q[2] * q[2])) * (180 / Math.PI);
+                    const pitch = Math.asin(2 * (q[0] * q[2] - q[3] * q[1])) * (180 / Math.PI);
+                    const roll = Math.atan2(2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] * q[2] + q[3] * q[3])) * (180 / Math.PI);
+                    
+                    // Format the values
+                    reloriEl.textContent = `yaw: ${yaw.toFixed(1)}°, pitch: ${pitch.toFixed(1)}°, roll: ${roll.toFixed(1)}°`;
                 });
                 sensor.addEventListener('error', () => {
-                    reloriEl.textContent = 'Permission denied or unavailable';
+                    // Fall back to deviceorientation if RelativeOrientationSensor fails
+                    if ('ondeviceorientation' in window) {
+                        let lastUpdate = 0;
+                        window.addEventListener('deviceorientation', function handler(e) {
+                            // Throttle updates to roughly 1 per second
+                            const now = Date.now();
+                            if (now - lastUpdate >= 1000) {
+                                if (e.alpha !== null || e.beta !== null || e.gamma !== null) {
+                                    reloriEl.textContent = `α: ${e.alpha?.toFixed(1)}°, β: ${e.beta?.toFixed(1)}°, γ: ${e.gamma?.toFixed(1)}°`;
+                                    lastUpdate = now;
+                                }
+                            }
+                        });
+                    } else {
+                        reloriEl.textContent = 'Permission denied or unavailable';
+                    }
                 });
                 sensor.start();
             } catch {
-                reloriEl.textContent = 'Not available';
+                // Fall back to deviceorientation if RelativeOrientationSensor is not available
+                if ('ondeviceorientation' in window) {
+                    let lastUpdate = 0;
+                    window.addEventListener('deviceorientation', function handler(e) {
+                        // Throttle updates to roughly 1 per second
+                        const now = Date.now();
+                        if (now - lastUpdate >= 1000) {
+                            if (e.alpha !== null || e.beta !== null || e.gamma !== null) {
+                                reloriEl.textContent = `α: ${e.alpha?.toFixed(1)}°, β: ${e.beta?.toFixed(1)}°, γ: ${e.gamma?.toFixed(1)}°`;
+                                lastUpdate = now;
+                            }
+                        }
+                    });
+                } else {
+                    reloriEl.textContent = 'Not available';
+                }
             }
         } else {
-            reloriEl.textContent = 'Not available';
+            // Fall back to deviceorientation if RelativeOrientationSensor is not supported
+            if ('ondeviceorientation' in window) {
+                let lastUpdate = 0;
+                window.addEventListener('deviceorientation', function handler(e) {
+                    // Throttle updates to roughly 1 per second
+                    const now = Date.now();
+                    if (now - lastUpdate >= 1000) {
+                        if (e.alpha !== null || e.beta !== null || e.gamma !== null) {
+                            reloriEl.textContent = `α: ${e.alpha?.toFixed(1)}°, β: ${e.beta?.toFixed(1)}°, γ: ${e.gamma?.toFixed(1)}°`;
+                            lastUpdate = now;
+                        }
+                    }
+                });
+            } else {
+                reloriEl.textContent = 'Not available';
+            }
         }
     },
 
@@ -449,6 +554,103 @@ export const SensorsHandler = {
             }
         } else {
             proxEl.textContent = 'Not available';
+        }
+    },
+
+    initHumidity() {
+        const humidityEl = document.querySelector('#sensor-humidity .sensor-value');
+        if ('HumiditySensor' in window) {
+            try {
+                const sensor = new window.HumiditySensor({ frequency: 1 }); // 1 Hz update rate
+                sensor.addEventListener('reading', () => {
+                    humidityEl.textContent = `${sensor.humidity.toFixed(1)}%`;
+                });
+                sensor.addEventListener('error', () => {
+                    humidityEl.textContent = 'Permission denied or unavailable';
+                });
+                sensor.start();
+            } catch {
+                humidityEl.textContent = 'Not available';
+            }
+        } else {
+            humidityEl.textContent = 'Not available';
+        }
+    },
+
+    initPressure() {
+        const pressureEl = document.querySelector('#sensor-pressure .sensor-value');
+        if ('PressureSensor' in window) {
+            try {
+                const sensor = new window.PressureSensor({ frequency: 1 }); // 1 Hz update rate
+                sensor.addEventListener('reading', () => {
+                    pressureEl.textContent = `${sensor.pressure.toFixed(1)} hPa`;
+                });
+                sensor.addEventListener('error', () => {
+                    pressureEl.textContent = 'Permission denied or unavailable';
+                });
+                sensor.start();
+            } catch {
+                pressureEl.textContent = 'Not available';
+            }
+        } else {
+            pressureEl.textContent = 'Not available';
+        }
+    },
+
+    initAltitude() {
+        const altitudeEl = document.querySelector('#sensor-altitude .sensor-value');
+        
+        // Try to get altitude from geolocation first
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    if (position.coords.altitude !== null) {
+                        altitudeEl.textContent = `${position.coords.altitude.toFixed(1)} m`;
+                    } else {
+                        // If no altitude from geolocation, try pressure sensor
+                        this.initAltitudeFromPressure(altitudeEl);
+                    }
+                },
+                () => {
+                    // If geolocation fails, try pressure sensor
+                    this.initAltitudeFromPressure(altitudeEl);
+                }
+            );
+        } else {
+            // If no geolocation, try pressure sensor
+            this.initAltitudeFromPressure(altitudeEl);
+        }
+    },
+
+    initAltitudeFromPressure(altitudeEl) {
+        if ('PressureSensor' in window) {
+            try {
+                const sensor = new window.PressureSensor({ frequency: 1 }); // 1 Hz update rate
+                sensor.addEventListener('reading', () => {
+                    // Convert pressure to altitude using the barometric formula
+                    // P0 = 1013.25 hPa (standard pressure at sea level)
+                    // T0 = 288.15 K (standard temperature at sea level)
+                    // g = 9.80665 m/s² (gravitational acceleration)
+                    // R = 287.05 J/(kg·K) (gas constant for air)
+                    const P0 = 1013.25;
+                    const T0 = 288.15;
+                    const g = 9.80665;
+                    const R = 287.05;
+                    
+                    const pressure = sensor.pressure;
+                    const altitude = -R * T0 / g * Math.log(pressure / P0);
+                    
+                    altitudeEl.textContent = `${altitude.toFixed(1)} m`;
+                });
+                sensor.addEventListener('error', () => {
+                    altitudeEl.textContent = 'Permission denied or unavailable';
+                });
+                sensor.start();
+            } catch {
+                altitudeEl.textContent = 'Not available';
+            }
+        } else {
+            altitudeEl.textContent = 'Not available';
         }
     }
 }; 
