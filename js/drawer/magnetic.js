@@ -110,5 +110,81 @@ export const MagneticHandler = {
         // Update compass display
         headingSpan.textContent = heading.toFixed(0) + '°';
         compassImg.style.transform = `rotate(${-heading}deg)`;
+    },
+
+    initCompass() {
+        const compassEl = document.querySelector('#compass');
+        const headingEl = document.querySelector('#heading');
+        const valuesEl = document.querySelector('#values');
+        let lastHeading = 0;
+        let smoothHeading = 0;
+        const smoothingFactor = 0.1; // Adjust this value between 0 and 1 (lower = smoother)
+        const headingHistory = [];
+        const historySize = 5;
+
+        if ('Magnetometer' in window) {
+            try {
+                const sensor = new window.Magnetometer({ frequency: 60 }); // 60 Hz for smooth updates
+                sensor.addEventListener('reading', () => {
+                    // Get raw values
+                    const x = sensor.x;
+                    const y = sensor.y;
+                    const z = sensor.z;
+
+                    // Calculate heading using atan2 for better accuracy
+                    let heading = Math.atan2(y, x) * (180 / Math.PI);
+                    if (heading < 0) heading += 360;
+
+                    // Add to history
+                    headingHistory.push(heading);
+                    if (headingHistory.length > historySize) {
+                        headingHistory.shift();
+                    }
+
+                    // Calculate moving average
+                    const avgHeading = headingHistory.reduce((a, b) => a + b, 0) / headingHistory.length;
+
+                    // Apply smoothing
+                    smoothHeading = smoothHeading + (avgHeading - smoothHeading) * smoothingFactor;
+
+                    // Handle the 0/360 transition smoothly
+                    if (Math.abs(smoothHeading - lastHeading) > 180) {
+                        if (smoothHeading > lastHeading) {
+                            smoothHeading -= 360;
+                        } else {
+                            smoothHeading += 360;
+                        }
+                    }
+
+                    // Update compass rotation with smooth transition
+                    compassEl.style.transform = `rotate(${-smoothHeading}deg)`;
+                    lastHeading = smoothHeading;
+
+                    // Update heading text
+                    const cardinal = this.getCardinalDirection(smoothHeading);
+                    headingEl.textContent = `${smoothHeading.toFixed(1)}° ${cardinal}`;
+
+                    // Update raw values
+                    valuesEl.textContent = `x: ${x.toFixed(2)} µT, y: ${y.toFixed(2)} µT, z: ${z.toFixed(2)} µT`;
+                });
+                sensor.addEventListener('error', () => {
+                    headingEl.textContent = 'Permission denied or unavailable';
+                    valuesEl.textContent = 'No data available';
+                });
+                sensor.start();
+            } catch {
+                headingEl.textContent = 'Not available';
+                valuesEl.textContent = 'No data available';
+            }
+        } else {
+            headingEl.textContent = 'Not available';
+            valuesEl.textContent = 'No data available';
+        }
+    },
+
+    getCardinalDirection(heading) {
+        const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        const index = Math.round(heading / 45) % 8;
+        return directions[index];
     }
 }; 

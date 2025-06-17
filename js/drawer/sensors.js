@@ -115,14 +115,19 @@ export const SensorsHandler = {
 
     initGyroscope() {
         const gyroEl = document.querySelector('#sensor-gyro .sensor-value');
-        if ('ondeviceorientation' in window) {
-            window.addEventListener('deviceorientation', function handler(e) {
-                if (e.alpha || e.beta || e.gamma) {
-                    gyroEl.textContent = `α: ${e.alpha?.toFixed(1)}, β: ${e.beta?.toFixed(1)}, γ: ${e.gamma?.toFixed(1)}`;
-                    window.removeEventListener('deviceorientation', handler);
-                }
-            });
-            setTimeout(() => { if (gyroEl.textContent === 'Checking...') gyroEl.textContent = 'No data (try on mobile)'; }, 2000);
+        if ('Gyroscope' in window) {
+            try {
+                const sensor = new window.Gyroscope({ frequency: 1 }); // 1 Hz update rate
+                sensor.addEventListener('reading', () => {
+                    gyroEl.textContent = `x: ${sensor.x.toFixed(2)} rad/s, y: ${sensor.y.toFixed(2)} rad/s, z: ${sensor.z.toFixed(2)} rad/s`;
+                });
+                sensor.addEventListener('error', () => {
+                    gyroEl.textContent = 'Permission denied or unavailable';
+                });
+                sensor.start();
+            } catch {
+                gyroEl.textContent = 'Not available';
+            }
         } else {
             gyroEl.textContent = 'Not available';
         }
