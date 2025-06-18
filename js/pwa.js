@@ -1,13 +1,27 @@
 // Register service worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-            .then((registration) => {
-                console.log('ServiceWorker registration successful');
-            })
-            .catch((err) => {
-                console.log('ServiceWorker registration failed: ', err);
+        // Check if we're in development mode (localhost)
+        const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        if (isDev) {
+            // In development, unregister any existing service workers
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+                console.log('Service workers unregistered for development');
             });
+        } else {
+            // In production, register the service worker
+            navigator.serviceWorker.register('/service-worker.js')
+                .then((registration) => {
+                    console.log('ServiceWorker registration successful');
+                })
+                .catch((err) => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+        }
     });
 }
 

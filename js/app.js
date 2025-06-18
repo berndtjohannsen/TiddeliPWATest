@@ -29,16 +29,111 @@ import { PedometerHandler } from './drawer/pedometer.js';
 import { ProximityHandler } from './drawer/proximity.js';
 import { WebProxyHandler } from './drawer/web-proxy.js';
 import { DragDropHandler } from './drawer/drag-drop.js';
+import { AudioClassificationHandler } from './drawer/audio-classification.js';
+
+// Drawer Option Manager
+const DrawerOptions = {
+    handlers: {
+        'Test GPS': () => GpsHandler.init(),
+        'Data Entry': () => DataEntryHandler.init(),
+        'Camera': () => CameraHandler.init(),
+        'Sensors': () => SensorsHandler.init(),
+        'Communication': () => CommunicationHandler.init(),
+        'UI Demo': () => UIDemoHandler.init(),
+        'QR codes': () => QRCodesHandler.init(),
+        'NFC Demo': () => NFCHandler.init(),
+        'Notifications': () => NotificationsHandler.init(),
+        'Phone Demo': () => PhoneHandler.init(),
+        'Microphone': () => MicrophoneHandler.init(),
+        'Golf Score Card': () => GolfScoreCardHandler.init(),
+        'PDF': () => PDFHandler.init(),
+        'Email': () => EmailHandler.init(),
+        'Load from URL': () => LoadFromURLHandler.init(),
+        'AI Service': () => AIServiceHandler.init(),
+        'Audio Playback': () => AudioPlaybackHandler.init(),
+        'Video': () => VideoHandler.init(),
+        'Image': () => ImageHandler.init(),
+        'Biometric Auth': () => BiometricHandler.init(),
+        'Magnetic': () => MagneticHandler.init(),
+        'UI Meters': () => UIMetersHandler.init(),
+        'Spirit Level': () => SpiritLevelHandler.init(),
+        'Gyroscope': () => GyroscopeHandler.init(),
+        'Speed': () => SpeedHandler.init(),
+        'Pedometer': () => PedometerHandler.init(),
+        'Proximity': () => ProximityHandler.init(),
+        'Web Proxy': () => WebProxyHandler.init(),
+        'Drag and Drop': () => DragDropHandler.init(),
+        'Audio Classification': () => AudioClassificationHandler.init()
+    },
+
+    init() {
+        console.log('Initializing drawer options...');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        if (!dropdownMenu) {
+            console.error('Dropdown menu not found!');
+            return;
+        }
+
+        // Update dropdown menu structure for two columns, responsive
+        dropdownMenu.className = 'absolute left-4 mt-2 max-w-xs w-[95vw] bg-white rounded-lg shadow-lg py-2 z-50 max-h-[70vh] overflow-y-auto';
+        dropdownMenu.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-1"></div>';
+        const gridContainer = dropdownMenu.querySelector('.grid');
+
+        // Ensure all menu items are present
+        const requiredOptions = Object.keys(this.handlers);
+        const existingOptions = Array.from(gridContainer.querySelectorAll('a')).map(opt => opt.textContent.trim());
+        
+        console.log('Required options:', requiredOptions);
+        console.log('Existing options:', existingOptions);
+
+        // Add any missing options
+        requiredOptions.forEach(option => {
+            if (!existingOptions.includes(option)) {
+                console.log('Adding missing option:', option);
+                const newOption = document.createElement('a');
+                newOption.href = '#';
+                newOption.className = 'flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-indigo-50 transition';
+                newOption.textContent = option;
+                gridContainer.appendChild(newOption);
+            }
+        });
+
+        // Add event listeners to all options
+        gridContainer.querySelectorAll('a').forEach(option => {
+            const text = option.textContent.trim();
+            console.log('Setting up handler for:', text);
+            
+            // Remove existing click listeners
+            const newOption = option.cloneNode(true);
+            option.parentNode.replaceChild(newOption, option);
+            
+            // Add new click listener
+            newOption.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdownMenu.classList.add('hidden');
+                
+                const handler = this.handlers[text];
+                console.log('Handler found for', text, ':', !!handler);
+                
+                if (handler) {
+                    handler();
+                } else {
+                    console.warn('No handler found for:', text);
+                    DrawerUtils.restoreTopBar();
+                    DrawerUtils.restoreMainContent();
+                }
+            });
+        });
+    }
+};
 
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the application
     console.log('Tiddeli PWA initialized');
     
     // Version management
     checkAppVersion();
-
-    // Display app version in UI
     displayAppVersion();
 
     // Navigation handling
@@ -65,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const pageName = span ? span.textContent.toLowerCase() : item.textContent.toLowerCase();
             currentPage = pageName;
             
-            // TODO: Add page content switching logic
             console.log(`Navigated to: ${pageName}`);
         });
     });
@@ -73,16 +167,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set initial active state
     updateActiveState(navItems[0]);
 
-    // TODO: Add mobile feature handlers
-    // TODO: Add UI interactions
-
     // Dropdown menu logic
     const hamburgerMenuBtn = document.getElementById('hamburger-menu');
     const dropdownMenu = document.getElementById('dropdown-menu');
     const topBar = document.querySelector('nav.top-bar');
     const mainContent = document.querySelector('main');
 
-    // Hamburger menu open/close logic (overlay removed)
+    // Hamburger menu open/close logic
     if (hamburgerMenuBtn && dropdownMenu) {
         hamburgerMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -104,113 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Drawer Option Manager
-    const DrawerOptions = {
-        handlers: {
-            'Test GPS': () => GpsHandler.init(),
-            'Data Entry': () => DataEntryHandler.init(),
-            'Camera': () => CameraHandler.init(),
-            'Sensors': () => SensorsHandler.init(),
-            'Communication': () => CommunicationHandler.init(),
-            'UI Demo': () => UIDemoHandler.init(),
-            'QR codes': () => QRCodesHandler.init(),
-            'NFC Demo': () => NFCHandler.init(),
-            'Notifications': () => NotificationsHandler.init(),
-            'Phone Demo': () => PhoneHandler.init(),
-            'Microphone': () => MicrophoneHandler.init(),
-            'Golf Score Card': () => GolfScoreCardHandler.init(),
-            'PDF': () => PDFHandler.init(),
-            'Email': () => EmailHandler.init(),
-            'Load from URL': () => LoadFromURLHandler.init(),
-            'AI Service': () => AIServiceHandler.init(),
-            'Audio Playback': () => AudioPlaybackHandler.init(),
-            'Video': () => VideoHandler.init(),
-            'Image': () => ImageHandler.init(),
-            'Biometric Auth': () => BiometricHandler.init(),
-            'Magnetic': () => MagneticHandler.init(),
-            'UI Meters': () => UIMetersHandler.init(),
-            'Spirit Level': () => SpiritLevelHandler.init(),
-            'Gyroscope': () => GyroscopeHandler.init(),
-            'Speed': () => SpeedHandler.init(),
-            'Pedometer': () => PedometerHandler.init(),
-            'Proximity': () => ProximityHandler.init(),
-            'Web Proxy': () => WebProxyHandler.init(),
-            'Drag and Drop': () => DragDropHandler.init()
-        },
-
-        init() {
-            console.log('Initializing drawer options...');
-            const dropdownMenu = document.getElementById('dropdown-menu');
-            if (!dropdownMenu) {
-                console.error('Dropdown menu not found!');
-                return;
-            }
-
-            // Update dropdown menu structure for two columns, responsive
-            dropdownMenu.className = 'absolute left-4 mt-2 max-w-xs w-[95vw] bg-white rounded-lg shadow-lg py-2 z-50 max-h-[70vh] overflow-y-auto';
-            dropdownMenu.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-1"></div>';
-            const gridContainer = dropdownMenu.querySelector('.grid');
-
-            // Ensure all menu items are present
-            const requiredOptions = Object.keys(this.handlers);
-            const existingOptions = Array.from(gridContainer.querySelectorAll('a')).map(opt => opt.textContent.trim());
-            
-            console.log('Required options:', requiredOptions);
-            console.log('Existing options:', existingOptions);
-
-            // Add any missing options
-            requiredOptions.forEach(option => {
-                if (!existingOptions.includes(option)) {
-                    console.log('Adding missing option:', option);
-                    const newOption = document.createElement('a');
-                    newOption.href = '#';
-                    newOption.className = 'flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-indigo-50 transition';
-                    newOption.textContent = option;
-                    gridContainer.appendChild(newOption);
-                }
-            });
-
-            // Add event listeners to all options
-            gridContainer.querySelectorAll('a').forEach(option => {
-                const text = option.textContent.trim();
-                console.log('Setting up handler for:', text);
-                
-                // Remove existing click listeners
-                const newOption = option.cloneNode(true);
-                option.parentNode.replaceChild(newOption, option);
-                
-                // Add new click listener
-                newOption.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    dropdownMenu.classList.add('hidden');
-                    
-                    const handler = this.handlers[text];
-                    console.log('Handler found for', text, ':', !!handler);
-                    
-                    if (handler) {
-                        handler();
-                    } else {
-                        console.warn('No handler found for:', text);
-                        DrawerUtils.restoreTopBar();
-                        DrawerUtils.restoreMainContent();
-                    }
-                });
-            });
-        }
-    };
-
-    // Initialize drawer options on DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOMContentLoaded - initializing drawer options');
-        DrawerOptions.init();
-    });
-
-    // Initialize drawer options on load (after refresh)
-    window.addEventListener('load', () => {
-        console.log('Window load - initializing drawer options');
-        DrawerOptions.init();
-    });
+    // Initialize drawer options
+    DrawerOptions.init();
 
     // Store the initial main content HTML for restoration
     const initialMainContent = `<div class="text-base text-gray-700">

@@ -1,3 +1,5 @@
+import { DrawerUtils } from './utils.js';
+
 /**
  * Drag and Drop Demo Handler
  * Demonstrates various drag and drop use cases:
@@ -7,8 +9,10 @@
  */
 export const DragDropHandler = {
     init() {
-        // Clear existing content
-        const mainContent = document.querySelector('main');
+        DrawerUtils.restoreTopBar();
+        DrawerUtils.restoreMainContent();
+        const mainContent = DrawerUtils.getMainContent();
+        
         mainContent.innerHTML = `
             <div class="demo-container">
                 <div class="demo-section">
@@ -220,10 +224,14 @@ export const DragDropHandler = {
     handleFiles(files) {
         const fileList = document.getElementById('fileList');
         fileList.innerHTML = '';
-        
+
         Array.from(files).forEach(file => {
             const fileItem = document.createElement('div');
-            fileItem.textContent = `${file.name} (${this.formatFileSize(file.size)})`;
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <span>${file.name}</span>
+                <span>${this.formatFileSize(file.size)}</span>
+            `;
             fileList.appendChild(fileItem);
         });
     },
@@ -237,12 +245,12 @@ export const DragDropHandler = {
     },
 
     getDragAfterElement(container, y) {
-        const draggableElements = [...container.querySelectorAll('.reorderable-item, .transfer-item')];
-        
+        const draggableElements = [...container.querySelectorAll('.reorderable-item:not(.dragging), .transfer-item:not(.dragging)')];
+
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
             const offset = y - box.top - box.height / 2;
-            
+
             if (offset < 0 && offset > closest.offset) {
                 return { offset: offset, element: child };
             } else {
