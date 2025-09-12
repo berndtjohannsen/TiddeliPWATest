@@ -30,6 +30,8 @@ import { ProximityHandler } from './drawer/proximity.js';
 import { WebProxyHandler } from './drawer/web-proxy.js';
 import { DragDropHandler } from './drawer/drag-drop.js';
 import { AudioClassificationHandler } from './drawer/audio-classification.js';
+import { SLBussHandler } from './drawer/sl-buss.js';
+import { TextToSpeechHandler } from './drawer/text-to-speech.js';
 
 // Drawer Option Manager
 const DrawerOptions = {
@@ -63,7 +65,9 @@ const DrawerOptions = {
         'Proximity': () => ProximityHandler.init(),
         'Web Proxy': () => WebProxyHandler.init(),
         'Drag and Drop': () => DragDropHandler.init(),
-        'Audio Classification': () => AudioClassificationHandler.init()
+        'Audio Classification': () => AudioClassificationHandler.init(),
+        'SL-BUSS': () => SLBussHandler.init(),
+        'Text-to-Speech': () => TextToSpeechHandler.init()
     },
 
     init() {
