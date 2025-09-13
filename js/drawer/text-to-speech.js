@@ -89,6 +89,16 @@ export const TextToSpeechHandler = {
                 </div>
                 
                 <div class="card">
+                    <h3 class="card-title">Voice Information</h3>
+                    <div id="voice-info" class="text-sm text-gray-600 space-y-2">
+                        <div><strong>Available voices:</strong> <span id="voice-count">Loading...</span></div>
+                        <div><strong>Current voice:</strong> <span id="current-voice-name">None</span></div>
+                        <div><strong>Language:</strong> <span id="current-voice-lang">Unknown</span></div>
+                        <div><strong>Device:</strong> <span id="device-info">Unknown</span></div>
+                    </div>
+                </div>
+                
+                <div class="card">
                     <h3 class="card-title">Quick Examples</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <button class="tts-example btn-secondary text-left" data-text="Hello! Welcome to the text-to-speech demo.">
@@ -126,6 +136,7 @@ export const TextToSpeechHandler = {
         // Voice selection
         document.getElementById('tts-voice').addEventListener('change', (e) => {
             this.currentVoice = this.voices.find(voice => voice.name === e.target.value);
+            this.updateVoiceInfo();
         });
         
         // Language filter
@@ -170,6 +181,7 @@ export const TextToSpeechHandler = {
         
         if (this.voices.length === 0) {
             voiceSelect.innerHTML = '<option value="">No voices available</option>';
+            this.updateVoiceInfo();
             return;
         }
         
@@ -192,6 +204,28 @@ export const TextToSpeechHandler = {
             this.currentVoice = this.voices[0];
             voiceSelect.value = this.currentVoice.name;
         }
+        
+        this.updateVoiceInfo();
+    },
+
+    updateVoiceInfo() {
+        const voiceCount = document.getElementById('voice-count');
+        const currentVoiceName = document.getElementById('current-voice-name');
+        const currentVoiceLang = document.getElementById('current-voice-lang');
+        const deviceInfo = document.getElementById('device-info');
+        
+        if (voiceCount) voiceCount.textContent = this.voices.length;
+        if (currentVoiceName) currentVoiceName.textContent = this.currentVoice ? this.currentVoice.name : 'None';
+        if (currentVoiceLang) currentVoiceLang.textContent = this.currentVoice ? this.currentVoice.lang : 'Unknown';
+        
+        // Device information
+        const userAgent = navigator.userAgent;
+        let deviceType = 'Desktop';
+        if (/Android/i.test(userAgent)) deviceType = 'Android';
+        else if (/iPhone|iPad|iPod/i.test(userAgent)) deviceType = 'iOS';
+        else if (/Windows Phone/i.test(userAgent)) deviceType = 'Windows Phone';
+        
+        if (deviceInfo) deviceInfo.textContent = `${deviceType} - ${navigator.platform}`;
     },
 
     filterVoicesByLanguage(languageCode) {
@@ -252,6 +286,14 @@ export const TextToSpeechHandler = {
         // Set voice if one is selected
         if (this.currentVoice) {
             utterance.voice = this.currentVoice;
+            console.log('Using voice:', this.currentVoice.name, this.currentVoice.lang);
+        } else {
+            console.log('No voice selected, using default');
+        }
+        
+        // Set language explicitly (helps on some mobile browsers)
+        if (this.currentVoice && this.currentVoice.lang) {
+            utterance.lang = this.currentVoice.lang;
         }
         
         // Event handlers
