@@ -32,6 +32,7 @@ import { DragDropHandler } from './drawer/drag-drop.js';
 import { AudioClassificationHandler } from './drawer/audio-classification.js';
 import { SLBussHandler } from './drawer/sl-buss.js';
 import { TextToSpeechHandler } from './drawer/text-to-speech.js';
+import { TTSTouristHandler } from './drawer/tts-tourist.js';
 
 // Drawer Option Manager
 const DrawerOptions = {
@@ -67,7 +68,8 @@ const DrawerOptions = {
         'Drag and Drop': () => DragDropHandler.init(),
         'Audio Classification': () => AudioClassificationHandler.init(),
         'SL-BUSS': () => SLBussHandler.init(),
-        'Text-to-Speech': () => TextToSpeechHandler.init()
+        'Text-to-Speech': () => TextToSpeechHandler.init(),
+        'TTS Tourist': () => TTSTouristHandler.init()
     },
 
     init() {
