@@ -134,6 +134,9 @@ const DrawerOptions = {
     }
 };
 
+// Expose handlers that need global access for inline onclick handlers
+window.AudioPlaybackHandler = AudioPlaybackHandler;
+
 // Main application logic
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Tiddeli PWA initialized');
