@@ -33,6 +33,7 @@ import { AudioClassificationHandler } from './drawer/audio-classification.js';
 import { SLBussHandler } from './drawer/sl-buss.js';
 import { TextToSpeechHandler } from './drawer/text-to-speech.js';
 import { TTSTouristHandler } from './drawer/tts-tourist.js';
+import { SimpleARHandler } from './drawer/simple-ar.js';
 
 // Drawer Option Manager
 const DrawerOptions = {
@@ -69,7 +70,8 @@ const DrawerOptions = {
         'Audio Classification': () => AudioClassificationHandler.init(),
         'SL-BUSS': () => SLBussHandler.init(),
         'Text-to-Speech': () => TextToSpeechHandler.init(),
-        'TTS Tourist': () => TTSTouristHandler.init()
+        'TTS Tourist': () => TTSTouristHandler.init(),
+        'Simple AR': () => SimpleARHandler.init()
     },
 
     init() {
