@@ -267,36 +267,56 @@ export const CommunicationHandler = {
         }
 
         async function startScan() {
-            if (!scanningSupported) {
-                supportEl.textContent = 'Scanning not supported in this browser/device.';
-                return;
-            }
             try {
-                // Request location permission implicitly via scan; must be called from a user gesture
-                activeScan = await navigator.bluetooth.requestLEScan({
-                    keepRepeatedDevices: true,
-                    acceptAllAdvertisements: true
-                });
+                if (scanningSupported) {
+                    // Preferred: global LE scan (may require special permissions/flags)
+                    activeScan = await navigator.bluetooth.requestLEScan({
+                        keepRepeatedDevices: true,
+                        acceptAllAdvertisements: true
+                    });
+                    navigator.bluetooth.addEventListener('advertisementreceived', advHandler);
+                    supportEl.textContent = 'Scanning... Move near your beacon.';
+                    console.log('[BLE] Global scan started');
+                    return;
+                }
 
-                navigator.bluetooth.addEventListener('advertisementreceived', advHandler);
-                supportEl.textContent = 'Scanning... Move near your beacon.';
-                console.log('[BLE] Scan started');
+                // Fallback: prompt for a single device, then watch its advertisements
+                supportEl.textContent = 'Scanning not available; select a device to watch advertisements…';
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true
+                });
+                if (!device) {
+                    supportEl.textContent = 'No device selected.';
+                    return;
+                }
+
+                if (typeof device.watchAdvertisements === 'function') {
+                    device.addEventListener('advertisementreceived', advHandler);
+                    await device.watchAdvertisements();
+                    supportEl.textContent = `Watching advertisements for: ${device.name || device.id}`;
+                    console.log('[BLE] Watching advertisements for device');
+                } else {
+                    // As last resort, just show the picked device; RSSI not available via GATT
+                    supportEl.textContent = 'This browser does not support advertisement watching. Showing selected device only.';
+                    deviceMap.set(device.id, { name: device.name || 'Device', rssiEma: null, lastRssi: null, txPower: null, lastSeen: Date.now() });
+                    render();
+                }
             } catch (e) {
-                console.error('[BLE] requestLEScan error:', e);
+                console.error('[BLE] startScan fallback error:', e);
                 supportEl.textContent = 'Scan failed or permission denied.';
             }
         }
 
         function stopScan() {
             try {
-                if (activeScan) activeScan.stop();
+                if (activeScan && typeof activeScan.stop === 'function') activeScan.stop();
             } catch (e) {
                 console.warn('[BLE] stop error:', e);
             }
             try {
                 navigator.bluetooth.removeEventListener('advertisementreceived', advHandler);
             } catch (e) {
-                console.warn('[BLE] removeEventListener error:', e);
+                // ignore
             }
             activeScan = null;
             supportEl.textContent = 'Scan stopped';
