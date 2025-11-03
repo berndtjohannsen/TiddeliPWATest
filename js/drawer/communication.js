@@ -226,8 +226,8 @@ export const CommunicationHandler = {
         let activeScan = null;
         const deviceMap = new Map(); // id -> { name, rssiEma, lastRssi, txPower, lastSeen }
 
-        // Feature detection for scanning
-        const scanningSupported = !!(navigator.bluetooth && navigator.bluetooth.requestLEScan && 'onadvertisementreceived' in navigator.bluetooth);
+        // Feature detection for scanning (don't rely on onadvertisementreceived property)
+        const scanningSupported = !!(navigator.bluetooth && navigator.bluetooth.requestLEScan);
         supportEl.textContent = scanningSupported
             ? 'Scanning supported: you may be prompted for permission.'
             : 'Scanning not supported on this browser/device. You can still use classic device request above.';
@@ -267,7 +267,10 @@ export const CommunicationHandler = {
         }
 
         async function startScan() {
-            if (!scanningSupported) return;
+            if (!scanningSupported) {
+                supportEl.textContent = 'Scanning not supported in this browser/device.';
+                return;
+            }
             try {
                 // Request location permission implicitly via scan; must be called from a user gesture
                 activeScan = await navigator.bluetooth.requestLEScan({
@@ -277,7 +280,9 @@ export const CommunicationHandler = {
 
                 navigator.bluetooth.addEventListener('advertisementreceived', advHandler);
                 supportEl.textContent = 'Scanning... Move near your beacon.';
+                console.log('[BLE] Scan started');
             } catch (e) {
+                console.error('[BLE] requestLEScan error:', e);
                 supportEl.textContent = 'Scan failed or permission denied.';
             }
         }
@@ -285,12 +290,17 @@ export const CommunicationHandler = {
         function stopScan() {
             try {
                 if (activeScan) activeScan.stop();
-            } catch {}
+            } catch (e) {
+                console.warn('[BLE] stop error:', e);
+            }
             try {
                 navigator.bluetooth.removeEventListener('advertisementreceived', advHandler);
-            } catch {}
+            } catch (e) {
+                console.warn('[BLE] removeEventListener error:', e);
+            }
             activeScan = null;
             supportEl.textContent = 'Scan stopped';
+            console.log('[BLE] Scan stopped');
         }
 
         function clearList() {
