@@ -34,6 +34,7 @@ import { SLBussHandler } from './drawer/sl-buss.js';
 import { TextToSpeechHandler } from './drawer/text-to-speech.js';
 import { TTSTouristHandler } from './drawer/tts-tourist.js';
 import { SimpleARHandler } from './drawer/simple-ar.js';
+import { TreasureHuntHandler } from './drawer/treasure-hunt.js';
 
 // Drawer Option Manager
 const DrawerOptions = {
@@ -71,7 +72,8 @@ const DrawerOptions = {
         'SL-BUSS': () => SLBussHandler.init(),
         'Text-to-Speech': () => TextToSpeechHandler.init(),
         'TTS Tourist': () => TTSTouristHandler.init(),
-        'Simple AR': () => SimpleARHandler.init()
+        'Simple AR': () => SimpleARHandler.init(),
+        'Treasure Hunt': () => TreasureHuntHandler.init()
     },
 
     init() {
