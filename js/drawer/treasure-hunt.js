@@ -13,6 +13,7 @@ export const TreasureHuntHandler = {
     headingDeg: 0,         // Smoothed current heading (0..360, 0 = North)
     alphaLP: null,         // Low-pass filter state for heading
     targetBearingDeg: null,// Target bearing (0..360) or null if not set
+    isLocked: false,       // Whether target is locked from current heading
 
     init() {
         // Fullscreen AR-like layout
@@ -30,14 +31,13 @@ export const TreasureHuntHandler = {
                 <!-- Controls overlay -->
                 <div class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg space-y-3">
                     <div class="flex flex-wrap gap-2">
-                        <button id="th-use-current" class="btn-primary text-sm px-3 py-2">🎯 Use Current</button>
-                        <button id="th-enter-bearing" class="btn-primary text-sm px-3 py-2">🎯 Enter°</button>
-                        <button id="th-clear-target" class="btn-primary text-sm px-3 py-2">✖ Clear</button>
+                        <button id="th-lock" class="btn-primary text-sm px-3 py-2">🔒 Lock Target</button>
+                        <button id="th-unlock" class="btn-primary text-sm px-3 py-2">🔓 Unlock</button>
                     </div>
                     <div class="text-sm grid grid-cols-2 gap-2">
                         <div>Heading: <span id="th-heading">--</span>°</div>
-                        <div>Target: <span id="th-target">--</span>°</div>
-                        <div>Delta: <span id="th-delta">--</span>°</div>
+                        <div>Locked: <span id="th-target">--</span>°</div>
+                        <div>Status: <span id="th-state">Aim and lock</span></div>
                         <div class="text-xs text-gray-500">Tip: keep phone upright; re-set target if it jitters.</div>
                     </div>
                     <div id="th-status" class="text-xs text-gray-600">Starting camera...</div>
@@ -68,26 +68,21 @@ export const TreasureHuntHandler = {
         updateCanvasSize();
         window.addEventListener('resize', updateCanvasSize);
 
-        // Controls: set target bearing
-        document.getElementById('th-use-current').onclick = () => {
+        // Controls: lock/unlock target
+        document.getElementById('th-lock').onclick = () => {
             this.targetBearingDeg = ((this.headingDeg % 360) + 360) % 360;
+            this.isLocked = true;
             this.updateInfo();
-            this.setStatus(`Target set to current: ${Math.round(this.targetBearingDeg)}°`);
+            this.setStatus(`Locked at ${Math.round(this.targetBearingDeg)}°`);
+            // Haptic feedback if available
+            if (navigator.vibrate) navigator.vibrate(60);
         };
-        document.getElementById('th-enter-bearing').onclick = () => {
-            const v = prompt('Enter target bearing (0..360, 0=N, 90=E):', '0');
-            if (v == null) return;
-            const deg = parseFloat(v);
-            if (!isNaN(deg)) {
-                this.targetBearingDeg = ((deg % 360) + 360) % 360;
-                this.updateInfo();
-                this.setStatus(`Target set: ${Math.round(this.targetBearingDeg)}°`);
-            }
-        };
-        document.getElementById('th-clear-target').onclick = () => {
+        document.getElementById('th-unlock').onclick = () => {
+            this.isLocked = false;
             this.targetBearingDeg = null;
             this.updateInfo();
-            this.setStatus('Target cleared');
+            this.setStatus('Unlocked. Aim and lock again.');
+            if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
         };
     },
 
@@ -158,15 +153,13 @@ export const TreasureHuntHandler = {
         // Clear overlay
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Compute arrow rotation in degrees
-        let arrowDeg;
-        if (this.targetBearingDeg == null) {
-            arrowDeg = this.headingDeg || 0; // show current heading if no target
-        } else {
-            const delta = this.normalizeDeg(this.targetBearingDeg - (this.headingDeg || 0));
-            arrowDeg = delta; // [-180,180)
+        // For point-and-lock behavior: arrow always points up (no rotation)
+        // We still compute delta for status, but do not rotate the arrow.
+        let delta = null;
+        if (this.isLocked && this.targetBearingDeg != null) {
+            delta = this.normalizeDeg(this.targetBearingDeg - (this.headingDeg || 0));
         }
-        const rot = arrowDeg * (Math.PI / 180);
+        const rot = 0; // fixed arrow pointing to top
 
         // Arrow sizing
         const centerX = this.canvas.width / 2;
@@ -200,23 +193,33 @@ export const TreasureHuntHandler = {
         this.ctx.stroke();
 
         this.ctx.restore();
+
+        // If locked, show a subtle ring whose color indicates alignment
+        if (this.isLocked && delta != null) {
+            const absDelta = Math.abs(delta);
+            const aligned = absDelta < 5; // within 5° considered aligned
+            this.ctx.save();
+            this.ctx.beginPath();
+            this.ctx.lineWidth = 6;
+            this.ctx.strokeStyle = aligned ? '#10b981' : '#f59e0b'; // green-500 or amber-500
+            this.ctx.arc(centerX, centerY, arrowLength + 16, 0, Math.PI * 2);
+            this.ctx.stroke();
+            this.ctx.restore();
+
+            if (aligned) {
+                this.setStatus('Aligned!');
+            }
+        }
     },
 
     // Update info display (heading, target, delta)
     updateInfo() {
         const h = document.getElementById('th-heading');
         const t = document.getElementById('th-target');
-        const d = document.getElementById('th-delta');
+        const s = document.getElementById('th-state');
         if (h) h.textContent = isFinite(this.headingDeg) ? Math.round(this.headingDeg) : '--';
-        if (t) t.textContent = this.targetBearingDeg == null ? '--' : Math.round(this.targetBearingDeg);
-        if (d) {
-            if (this.targetBearingDeg == null) {
-                d.textContent = '--';
-            } else {
-                const delta = this.normalizeDeg(this.targetBearingDeg - (this.headingDeg || 0));
-                d.textContent = `${Math.round(delta)}`;
-            }
-        }
+        if (t) t.textContent = (this.isLocked && this.targetBearingDeg != null) ? Math.round(this.targetBearingDeg) : '--';
+        if (s) s.textContent = this.isLocked ? 'Locked' : 'Aim and lock';
     },
 
     // Utility: normalize degrees to [-180, 180)
